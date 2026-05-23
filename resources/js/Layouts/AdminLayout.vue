@@ -22,7 +22,7 @@
                 <SidebarLink href="/admin/content" icon="content" :active="$page.url.startsWith('/admin/content')">Content</SidebarLink>
 
                 <div class="pt-4 mt-4 border-t border-white/5">
-                    <SidebarLink href="/admin/password" icon="password" :active="$page.url.startsWith('/admin/password')">Change Password</SidebarLink>
+                    <SidebarLink href="/admin/change-password" icon="password" :active="$page.url.startsWith('/admin/change-password')">Change Password</SidebarLink>
                     <SidebarLink href="/" icon="website" :active="false">View Website</SidebarLink>
                 </div>
             </nav>

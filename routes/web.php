@@ -43,6 +43,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::put('/content/{content}', [ContentController::class, 'update'])->name('content.update');
     Route::post('/content/bulk-update', [ContentController::class, 'bulkUpdate'])->name('content.bulk-update');
 
-    Route::get('/password', [PasswordController::class, 'edit'])->name('password.edit');
-    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+    Route::get('/change-password', [PasswordController::class, 'edit'])->name('change-password');
+    Route::put('/change-password', [PasswordController::class, 'update'])->name('change-password.update');
 });

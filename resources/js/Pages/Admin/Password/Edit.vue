@@ -49,7 +49,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.put('/admin/password', {
+    form.put('/admin/change-password', {
         preserveScroll: true,
         onSuccess: () => form.reset(),
     });

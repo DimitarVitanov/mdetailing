@@ -11,10 +11,10 @@ class SiteContentSeeder extends Seeder
     {
         $contents = [
             ['key' => 'hero.badge', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Premium Auto Detailing', 'value_mk' => 'Премиум Авто Деталинг'],
-            ['key' => 'hero.title1', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Perfection', 'value_mk' => 'Перфекција'],
-            ['key' => 'hero.title2', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'in Every', 'value_mk' => 'во Секој'],
-            ['key' => 'hero.title3', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Detail', 'value_mk' => 'Детал'],
-            ['key' => 'hero.subtitle', 'page' => 'home', 'section' => 'hero', 'type' => 'textarea', 'value_en' => "Where artistry meets automotive excellence. We don't just clean cars — we craft experiences that redefine what your vehicle can look like.", 'value_mk' => 'Каде уметноста се среќава со автомобилската извонредност. Ние не само што чистиме автомобили — ние создаваме искуства кои го редефинираат изгледот на вашето возило.'],
+            ['key' => 'hero.title1', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Premium', 'value_mk' => 'Премиум'],
+            ['key' => 'hero.title2', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Care for Every', 'value_mk' => 'Нега за Секој'],
+            ['key' => 'hero.title3', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Vehicle', 'value_mk' => 'Автомобил'],
+            ['key' => 'hero.subtitle', 'page' => 'home', 'section' => 'hero', 'type' => 'textarea', 'value_en' => "Where artistry meets automotive excellence. We don't just clean cars — we craft experiences that redefine what your vehicle can look like.", 'value_mk' => 'Детално внатрешно и надворешно чистење, полирање во 3 фази, керамичка заштита и полирање на фарови.'],
             ['key' => 'hero.cta', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Book Your Detail', 'value_mk' => 'Закажи Деталинг'],
             ['key' => 'hero.ctaSecondary', 'page' => 'home', 'section' => 'hero', 'type' => 'text', 'value_en' => 'Explore Services', 'value_mk' => 'Разгледај Услуги'],
             ['key' => 'services.label', 'page' => 'home', 'section' => 'services', 'type' => 'text', 'value_en' => 'What We Offer', 'value_mk' => 'Што Нудиме'],

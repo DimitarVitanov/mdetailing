@@ -39,17 +39,17 @@ createInertiaApp({
     },
 });
 
-// Init AOS after a short delay so Inertia has rendered the page
+// AOS only on desktop — on mobile everything shows immediately
 setTimeout(() => {
     AOS.init({
         duration: 600,
         easing: 'ease-out',
         once: true,
         offset: 50,
+        disable: 'mobile',
     });
 }, 100);
 
-// Refresh AOS after every Inertia page navigation
 router.on('navigate', () => {
     setTimeout(() => AOS.refresh(), 100);
 });

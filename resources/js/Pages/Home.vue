@@ -365,18 +365,20 @@ function fadeIn(el, opts = {}) {
     if (!targets.length) return;
 
     if (isMobile) {
-        // Use IntersectionObserver — lightweight and reliable on mobile
-        targets.forEach(target => {
-            target.classList.add('reveal-hidden');
+        targets.forEach((target, i) => {
+            target.style.opacity = '0';
+            target.style.transform = i % 2 === 0 ? 'translateX(-20px)' : 'translateX(20px)';
+            target.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s`;
         });
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('reveal-visible');
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateX(0)';
                     observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.05, rootMargin: '0px 0px -5% 0px' });
         targets.forEach(target => observer.observe(target));
     } else {
         gsap.fromTo(targets,
@@ -488,13 +490,4 @@ function initAnimations() {
     display: none;
 }
 
-.reveal-hidden {
-    opacity: 0;
-    transform: translateY(12px);
-}
-.reveal-visible {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
 </style>

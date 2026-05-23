@@ -18,14 +18,14 @@
             <div class="relative z-10 h-full flex items-center">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div class="max-w-3xl">
-                        <div ref="heroBadge" class="opacity-0">
+                        <div ref="heroBadge" class="md:opacity-0">
                             <span class="inline-flex items-center glass-gold rounded-full px-5 py-2 mb-8">
                                 <span class="w-2 h-2 bg-gold rounded-full mr-3 animate-pulse"></span>
                                 <span class="text-gold/90 text-xs font-semibold tracking-[0.25em] uppercase">{{ c('hero.badge') }}</span>
                             </span>
                         </div>
 
-                        <h1 ref="heroTitle" class="opacity-0">
+                        <h1 ref="heroTitle" class="md:opacity-0">
                             <span class="block text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[0.9]" style="font-family: 'Playfair Display', serif;">
                                 {{ c('hero.title1') }}
                             </span>
@@ -34,11 +34,11 @@
                             </span>
                         </h1>
 
-                        <p ref="heroText" class="opacity-0 text-lg sm:text-xl text-white/60 max-w-xl mt-8 leading-relaxed font-light">
+                        <p ref="heroText" class="md:opacity-0 text-lg sm:text-xl text-white/60 max-w-xl mt-8 leading-relaxed font-light">
                             {{ c('hero.subtitle') }}
                         </p>
 
-                        <div ref="heroCta" class="opacity-0 flex flex-col sm:flex-row gap-4 mt-10">
+                        <div ref="heroCta" class="md:opacity-0 flex flex-col sm:flex-row gap-4 mt-10">
                             <Link href="/contact"
                                   class="group inline-flex items-center justify-center px-8 py-4 bg-gold text-dark font-bold rounded-full text-base hover:bg-gold-light hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] transition-all duration-500">
                                 <span>{{ c('hero.cta') }}</span>
@@ -54,7 +54,7 @@
             </div>
 
             <!-- Scroll indicator -->
-            <div ref="heroScroll" class="opacity-0 absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+            <div ref="heroScroll" class="md:opacity-0 absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
                 <div class="w-[1px] h-16 bg-gradient-to-b from-transparent via-gold/50 to-transparent scroll-line"></div>
             </div>
         </section>
@@ -414,20 +414,20 @@ function initAnimations() {
         });
     }
 
-    // Hero content
-    const heroEls = [heroBadge.value, heroTitle.value, heroText.value, heroCta.value].filter(Boolean);
-    gsap.set(heroEls, { y: isMobile ? 10 : 20, opacity: 0 });
-    gsap.set(heroScroll.value, { opacity: 0 });
+    // Hero content — on mobile, content is already visible (no opacity-0)
+    if (!isMobile) {
+        const heroEls = [heroBadge.value, heroTitle.value, heroText.value, heroCta.value].filter(Boolean);
+        gsap.set(heroEls, { y: 20, opacity: 0 });
+        gsap.set(heroScroll.value, { opacity: 0 });
 
-    const dur = isMobile ? 0.2 : 0.3;
-    const overlap = isMobile ? '-=0.12' : '-=0.15';
-    const heroTl = gsap.timeline({ delay: 0.05, defaults: { ease: 'power2.out' } });
-    heroTl
-        .to(heroBadge.value, { y: 0, opacity: 1, duration: dur })
-        .to(heroTitle.value, { y: 0, opacity: 1, duration: dur + 0.05 }, overlap)
-        .to(heroText.value, { y: 0, opacity: 1, duration: dur }, overlap)
-        .to(heroCta.value, { y: 0, opacity: 1, duration: dur }, overlap)
-        .to(heroScroll.value, { opacity: 0.5, duration: dur }, '-=0.1');
+        const heroTl = gsap.timeline({ delay: 0.05, defaults: { ease: 'power2.out' } });
+        heroTl
+            .to(heroBadge.value, { y: 0, opacity: 1, duration: 0.3 })
+            .to(heroTitle.value, { y: 0, opacity: 1, duration: 0.35 }, '-=0.15')
+            .to(heroText.value, { y: 0, opacity: 1, duration: 0.3 }, '-=0.15')
+            .to(heroCta.value, { y: 0, opacity: 1, duration: 0.3 }, '-=0.15')
+            .to(heroScroll.value, { opacity: 0.5, duration: 0.3 }, '-=0.1');
+    }
 
     // Services
     fadeIn(servicesHeader.value);

@@ -366,6 +366,11 @@ function fadeIn(el, opts = {}) {
 
     if (isMobile) {
         targets.forEach((target, i) => {
+            const rect = target.getBoundingClientRect();
+            // Already visible in viewport — show immediately
+            if (rect.top < window.innerHeight) {
+                return;
+            }
             target.style.opacity = '0';
             target.style.transform = i % 2 === 0 ? 'translateX(-20px)' : 'translateX(20px)';
             target.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s`;
@@ -379,7 +384,9 @@ function fadeIn(el, opts = {}) {
                 }
             });
         }, { threshold: 0.05, rootMargin: '0px 0px -5% 0px' });
-        targets.forEach(target => observer.observe(target));
+        targets.forEach(target => {
+            if (target.style.opacity === '0') observer.observe(target);
+        });
     } else {
         gsap.fromTo(targets,
             { y: opts.y ?? 24, opacity: 0 },

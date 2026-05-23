@@ -75,7 +75,7 @@ const form = useForm({
 
 const submit = () => {
     if (props.testimonial) {
-        form.put('/admin/testimonials/' + props.testimonial.id);
+        form.post('/admin/testimonials/' + props.testimonial.id);
     } else {
         form.post('/admin/testimonials');
     }

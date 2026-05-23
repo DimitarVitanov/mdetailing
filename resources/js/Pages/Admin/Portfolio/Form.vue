@@ -92,7 +92,7 @@ const form = useForm({
 
 const submit = () => {
     if (props.item) {
-        form.post('/admin/portfolio/' + props.item.id, { _method: 'put', forceFormData: true });
+        form.post('/admin/portfolio/' + props.item.id, { forceFormData: true });
     } else {
         form.post('/admin/portfolio', { forceFormData: true });
     }

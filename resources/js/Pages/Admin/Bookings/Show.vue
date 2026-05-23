@@ -70,7 +70,7 @@ const statusClasses = {
 };
 
 const updateStatus = (status) => {
-    router.patch('/admin/bookings/' + props.booking.id + '/status', { status });
+    router.post('/admin/bookings/' + props.booking.id + '/status', { status });
 };
 
 const deleteBooking = () => {

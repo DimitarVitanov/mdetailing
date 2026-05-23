@@ -56,6 +56,6 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put('/admin/content/' + props.content.id);
+    form.post('/admin/content/' + props.content.id);
 };
 </script>

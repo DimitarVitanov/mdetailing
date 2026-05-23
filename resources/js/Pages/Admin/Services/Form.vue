@@ -124,8 +124,8 @@ const form = useForm({
 const submit = () => {
     if (props.service) {
         form.post('/admin/services/' + props.service.id, {
-            _method: 'put',
             forceFormData: true,
+            preserveScroll: true,
         });
     } else {
         form.post('/admin/services', { forceFormData: true });

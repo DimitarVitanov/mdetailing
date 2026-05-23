@@ -82,7 +82,7 @@ const statuses = [
 ];
 
 const updateStatus = (booking, status) => {
-    router.patch('/admin/bookings/' + booking.id + '/status', { status });
+    router.post('/admin/bookings/' + booking.id + '/status', { status });
 };
 
 const deleteBooking = (booking) => {

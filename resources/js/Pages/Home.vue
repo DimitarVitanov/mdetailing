@@ -358,28 +358,26 @@ onMounted(() => {
 
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-// Simple fade-up scroll animation — instant on mobile, quick on desktop
+// Mobile: CSS-only reveal via IntersectionObserver. Desktop: GSAP ScrollTrigger.
 function fadeIn(el, opts = {}) {
     if (!el) return;
     const targets = opts.children ? Array.from(el.children || []) : [el];
     if (!targets.length) return;
 
     if (isMobile) {
-        gsap.fromTo(targets,
-            { y: 12, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                duration: 0.2,
-                stagger: 0.02,
-                ease: 'power1.out',
-                scrollTrigger: {
-                    trigger: opts.trigger || el,
-                    start: 'top 95%',
-                    once: true,
-                },
-            }
-        );
+        // Use IntersectionObserver — lightweight and reliable on mobile
+        targets.forEach(target => {
+            target.classList.add('reveal-hidden');
+        });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        targets.forEach(target => observer.observe(target));
     } else {
         gsap.fromTo(targets,
             { y: opts.y ?? 24, opacity: 0 },
@@ -488,5 +486,15 @@ function initAnimations() {
 }
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
+}
+
+.reveal-hidden {
+    opacity: 0;
+    transform: translateY(12px);
+}
+.reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
 </style>

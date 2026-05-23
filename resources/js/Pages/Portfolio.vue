@@ -64,40 +64,43 @@
         </section>
 
         <!-- Modal -->
-        <transition
-            enter-active-class="transition duration-300"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="transition duration-200"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0">
-            <div v-if="modalItem" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" @click.self="modalItem = null">
-                <div class="bg-gray-dark rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                    <div class="p-6 flex items-center justify-between border-b border-white/5">
-                        <h3 class="text-xl font-bold">{{ localized(modalItem, 'title') }}</h3>
-                        <button @click="modalItem = null" class="text-gray-light hover:text-white transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <Teleport to="body">
+            <transition
+                enter-active-class="transition duration-300"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition duration-200"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+                <div v-if="modalItem" class="fixed inset-0 z-[100] overflow-hidden flex flex-col">
+                    <div class="absolute inset-0 bg-black/95" @click="closeModal"></div>
+                    <!-- Top bar: title + close -->
+                    <div class="relative z-20 flex items-start justify-between p-4 flex-shrink-0">
+                        <div class="pr-12">
+                            <h3 class="text-white text-base md:text-lg font-bold">{{ localized(modalItem, 'title') }}</h3>
+                            <p v-if="modalItem.description" class="text-white/50 text-xs md:text-sm mt-1">{{ localized(modalItem, 'description') }}</p>
+                        </div>
+                        <button @click="closeModal" class="flex-shrink-0 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
-                    <div v-if="modalItem.before_image && modalItem.after_image" class="grid grid-cols-2 gap-4 p-6">
-                        <div>
-                            <span class="text-xs text-gray-light uppercase tracking-wider mb-2 block">{{ t('portfolioPage.before') }}</span>
-                            <img :src="'/storage/' + modalItem.before_image" :alt="'Before - ' + modalItem.title" class="w-full rounded-lg"/>
+                    <!-- Image area -->
+                    <div class="relative z-10 flex-1 min-h-0 flex items-center justify-center px-4 pb-4">
+                        <div v-if="modalItem.before_image && modalItem.after_image" class="flex gap-3 max-w-5xl w-full h-full">
+                            <div class="flex-1 flex flex-col items-center min-w-0 min-h-0">
+                                <span class="text-xs text-white/40 uppercase tracking-wider mb-2 flex-shrink-0">{{ t('portfolioPage.before') }}</span>
+                                <img :src="'/storage/' + modalItem.before_image" :alt="'Before'" class="rounded-lg object-contain max-w-full max-h-full min-h-0"/>
+                            </div>
+                            <div class="flex-1 flex flex-col items-center min-w-0 min-h-0">
+                                <span class="text-xs text-gold uppercase tracking-wider mb-2 flex-shrink-0">{{ t('portfolioPage.after') }}</span>
+                                <img :src="'/storage/' + modalItem.after_image" :alt="'After'" class="rounded-lg object-contain max-w-full max-h-full min-h-0"/>
+                            </div>
                         </div>
-                        <div>
-                            <span class="text-xs text-gold uppercase tracking-wider mb-2 block">{{ t('portfolioPage.after') }}</span>
-                            <img :src="'/storage/' + modalItem.after_image" :alt="'After - ' + modalItem.title" class="w-full rounded-lg"/>
-                        </div>
-                    </div>
-                    <div v-else-if="modalItem.after_image" class="p-6">
-                        <img :src="'/storage/' + modalItem.after_image" :alt="modalItem.title" class="w-full rounded-lg"/>
-                    </div>
-                    <div v-if="modalItem.description" class="px-6 pb-6 text-gray-light text-sm leading-relaxed">
-                        {{ localized(modalItem, 'description') }}
+                        <img v-else-if="modalItem.after_image" :src="'/storage/' + modalItem.after_image" :alt="modalItem.title" class="rounded-lg object-contain max-w-full max-h-full"/>
                     </div>
                 </div>
-            </div>
-        </transition>
+            </transition>
+        </Teleport>
     </MainLayout>
 </template>
 
@@ -124,6 +127,12 @@ const filteredItems = computed(() => {
 
 const openModal = (item) => {
     modalItem.value = item;
+    document.body.style.overflow = 'hidden';
+};
+
+const closeModal = () => {
+    modalItem.value = null;
+    document.body.style.overflow = '';
 };
 </script>
 

@@ -353,7 +353,7 @@ export function useI18n() {
 
     function price(amount) {
         if (!amount) return '';
-        return state.locale === 'mk' ? `${amount} ден` : `$${amount}`;
+        return `€${amount}`;
     }
 
     return { t, c, setLocale, getLocale, toggleLocale, localized, price, state };

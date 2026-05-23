@@ -28,7 +28,7 @@
                                 <p class="text-xs text-gray-400 mt-0.5 truncate max-w-xs">{{ service.short_description }}</p>
                             </td>
                             <td class="px-5 py-4 text-sm text-gold font-medium">
-                                ${{ service.price_from }}<span v-if="service.price_to"> - ${{ service.price_to }}</span>
+                                €{{ service.price_from }}<span v-if="service.price_to"> - €{{ service.price_to }}</span>
                             </td>
                             <td class="px-5 py-4">
                                 <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium"

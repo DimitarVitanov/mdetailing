@@ -5,6 +5,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PasswordController;
 use App\Http\Controllers\Admin\PortfolioController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -41,4 +42,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/content/{content}/edit', [ContentController::class, 'edit'])->name('content.edit');
     Route::put('/content/{content}', [ContentController::class, 'update'])->name('content.update');
     Route::post('/content/bulk-update', [ContentController::class, 'bulkUpdate'])->name('content.bulk-update');
+
+    Route::get('/password', [PasswordController::class, 'edit'])->name('password.edit');
+    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
 });

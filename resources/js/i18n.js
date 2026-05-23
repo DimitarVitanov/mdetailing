@@ -309,7 +309,7 @@ const translations = {
 };
 
 const state = reactive({
-    locale: localStorage.getItem('locale') || 'en',
+    locale: localStorage.getItem('locale') || 'mk',
 });
 
 export function useI18n() {

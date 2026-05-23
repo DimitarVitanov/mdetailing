@@ -79,8 +79,9 @@
                     <div>
                         <span class="text-gold text-xs font-bold tracking-[0.3em] uppercase">{{ c('services.label') }}</span>
                         <h2 class="text-3xl md:text-4xl lg:text-6xl font-extrabold mt-2 md:mt-3 leading-tight" style="font-family: 'Playfair Display', serif;">
-                            {{ c('services.title') }}<br><span class="text-gradient-gold">{{ c('services.titleAccent') }}</span>
+                            {{ c('services.title') }} <span class="text-gradient-gold">{{ c('services.titleAccent') }}</span>
                         </h2>
+                        <p class="text-white/50 text-sm mt-3">{{ c('services.note') }}</p>
                     </div>
                     <Link href="/services" class="inline-flex items-center space-x-2 text-white/50 hover:text-gold font-medium transition-colors text-sm tracking-wider uppercase group">
                         <span>{{ c('services.viewAll', 'View All') }}</span>

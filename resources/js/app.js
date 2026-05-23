@@ -1,4 +1,4 @@
-import { createApp, h, nextTick } from 'vue';
+import { createApp, h } from 'vue';
 import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import '../css/app.css';
@@ -30,31 +30,26 @@ createInertiaApp({
     title: (title) => title ? `${title} - MDetailing Premium Car Care` : 'MDetailing Premium Car Care',
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        const app = createApp({ render: () => h(App, props) })
+        return createApp({ render: () => h(App, props) })
             .use(plugin)
             .mount(el);
-
-        // Initialize AOS after first render
-        nextTick(() => {
-            AOS.init({
-                duration: 600,
-                easing: 'ease-out',
-                once: true,
-                offset: 50,
-                disable: false,
-            });
-        });
-
-        return app;
     },
     progress: {
         color: '#C9A84C',
     },
 });
 
-// Refresh AOS on every Inertia page navigation
-router.on('navigate', () => {
-    nextTick(() => {
-        AOS.refresh();
+// Init AOS after a short delay so Inertia has rendered the page
+setTimeout(() => {
+    AOS.init({
+        duration: 600,
+        easing: 'ease-out',
+        once: true,
+        offset: 50,
     });
+}, 100);
+
+// Refresh AOS after every Inertia page navigation
+router.on('navigate', () => {
+    setTimeout(() => AOS.refresh(), 100);
 });

@@ -18,14 +18,14 @@
             <div class="relative z-10 h-full flex items-center">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div class="max-w-3xl">
-                        <div data-aos="fade-down" data-aos-delay="100">
+                        <div class="animate-fade-in" style="animation-delay: 0.1s">
                             <span class="inline-flex items-center glass-gold rounded-full px-5 py-2 mb-8">
                                 <span class="w-2 h-2 bg-gold rounded-full mr-3 animate-pulse"></span>
                                 <span class="text-gold/90 text-xs font-semibold tracking-[0.25em] uppercase">{{ c('hero.badge') }}</span>
                             </span>
                         </div>
 
-                        <h1 data-aos="fade-up" data-aos-delay="200">
+                        <h1 class="animate-fade-in" style="animation-delay: 0.2s">
                             <span class="block text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[0.9]" style="font-family: 'Playfair Display', serif;">
                                 {{ c('hero.title1') }}
                             </span>
@@ -34,11 +34,11 @@
                             </span>
                         </h1>
 
-                        <p data-aos="fade-up" data-aos-delay="300" class="text-lg sm:text-xl text-white/60 max-w-xl mt-8 leading-relaxed font-light">
+                        <p class="animate-fade-in text-lg sm:text-xl text-white/60 max-w-xl mt-8 leading-relaxed font-light" style="animation-delay: 0.3s">
                             {{ c('hero.subtitle') }}
                         </p>
 
-                        <div data-aos="fade-up" data-aos-delay="400" class="flex flex-col sm:flex-row gap-4 mt-10">
+                        <div class="animate-fade-in flex flex-col sm:flex-row gap-4 mt-10" style="animation-delay: 0.4s">
                             <Link href="/contact"
                                   class="group inline-flex items-center justify-center px-8 py-4 bg-gold text-dark font-bold rounded-full text-base hover:bg-gold-light hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] transition-all duration-500">
                                 <span>{{ c('hero.cta') }}</span>
@@ -54,7 +54,7 @@
             </div>
 
             <!-- Scroll indicator -->
-            <div data-aos="fade-up" data-aos-delay="500" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+            <div class="animate-fade-in absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center" style="animation-delay: 0.5s">
                 <div class="w-[1px] h-16 bg-gradient-to-b from-transparent via-gold/50 to-transparent scroll-line"></div>
             </div>
         </section>
@@ -368,4 +368,12 @@ const stats = computed(() => [
     display: none;
 }
 
+.animate-fade-in {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: fadeIn 0.6s ease forwards;
+}
+@keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>

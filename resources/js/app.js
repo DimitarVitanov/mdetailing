@@ -2,29 +2,8 @@ import { createApp, h } from 'vue';
 import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import '../css/app.css';
-import Lenis from 'lenis';
-import 'lenis/dist/lenis.css';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-
-const isMobile = window.innerWidth < 768;
-
-if (!isMobile) {
-    const lenis = new Lenis({
-        duration: 1.0,
-        easing: (t) => 1 - Math.pow(1 - t, 3),
-        lerp: 0.12,
-        wheelMultiplier: 1,
-        touchMultiplier: 1.5,
-        smooth: true,
-    });
-
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-}
 
 createInertiaApp({
     title: (title) => title ? `${title} - MDetailing Premium Car Care` : 'MDetailing Premium Car Care',
@@ -39,17 +18,16 @@ createInertiaApp({
     },
 });
 
-// AOS only on desktop — on mobile everything shows immediately
+// Init AOS after DOM is ready
 setTimeout(() => {
     AOS.init({
         duration: 600,
         easing: 'ease-out',
         once: true,
         offset: 50,
-        disable: 'mobile',
     });
-}, 100);
+}, 150);
 
 router.on('navigate', () => {
-    setTimeout(() => AOS.refresh(), 100);
+    setTimeout(() => AOS.refresh(), 150);
 });

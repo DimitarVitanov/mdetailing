@@ -4,10 +4,8 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import '../css/app.css';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const isMobile = window.innerWidth < 768;
 
@@ -21,13 +19,19 @@ if (!isMobile) {
         smooth: true,
     });
 
-    lenis.on('scroll', ScrollTrigger.update);
-
-    gsap.ticker.add((time) => {
-        lenis.raf(time * 1000);
-    });
-    gsap.ticker.lagSmoothing(0);
+    function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
 }
+
+AOS.init({
+    duration: 600,
+    easing: 'ease-out',
+    once: true,
+    offset: 50,
+});
 
 createInertiaApp({
     title: (title) => title ? `${title} - MDetailing Premium Car Care` : 'MDetailing Premium Car Care',

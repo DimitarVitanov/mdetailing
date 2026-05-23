@@ -63,38 +63,45 @@
         </nav>
 
         <!-- Full-Screen Mobile Menu -->
-        <div ref="mobileMenuOverlay"
-             class="fixed inset-0 z-40 pointer-events-none opacity-0 md:hidden"
-             style="background: rgba(3,3,3,0.97); backdrop-filter: blur(30px) saturate(1.2);">
-            <div class="h-full flex flex-col justify-center items-center px-8">
-                <!-- Nav Links -->
-                <div class="flex flex-col items-center space-y-2 w-full max-w-sm">
-                    <Link v-for="(link, i) in mobileLinks" :key="link.href"
-                          :href="link.href"
-                          @click="closeMobile"
-                          :ref="el => { if (el) mobileNavItems[i] = el.$el || el }"
-                          class="mobile-nav-item opacity-0 text-3xl font-extrabold tracking-tight text-white/80 hover:text-gold transition-colors duration-300 py-3"
-                          style="font-family: 'Playfair Display', serif;">
-                        {{ t(link.labelKey) }}
-                    </Link>
-                </div>
+        <transition
+            enter-active-class="transition duration-300 ease-out"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <div v-if="mobileOpen"
+                 class="fixed inset-0 z-40 md:hidden"
+                 style="background: rgba(3,3,3,0.97); backdrop-filter: blur(30px) saturate(1.2);">
+                <div class="h-full flex flex-col justify-center items-center px-8">
+                    <!-- Nav Links -->
+                    <div class="flex flex-col items-center space-y-2 w-full max-w-sm">
+                        <Link v-for="(link, i) in mobileLinks" :key="link.href"
+                              :href="link.href"
+                              @click="closeMobile"
+                              class="text-3xl font-extrabold tracking-tight text-white/80 hover:text-gold transition-colors duration-300 py-3"
+                              :style="{ transitionDelay: (i * 50) + 'ms', fontFamily: '\'Playfair Display\', serif' }">
+                            {{ t(link.labelKey) }}
+                        </Link>
+                    </div>
 
-                <!-- CTA Button -->
-                <div ref="mobileCta" class="opacity-0 mt-10">
-                    <Link href="/contact" @click="closeMobile"
-                          class="inline-flex items-center px-10 py-4 bg-gold text-dark font-bold rounded-full text-base hover:bg-gold-light transition-all duration-300">
-                        {{ t('nav.bookNow') }}
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                    </Link>
-                </div>
+                    <!-- CTA Button -->
+                    <div class="mt-10">
+                        <Link href="/contact" @click="closeMobile"
+                              class="inline-flex items-center px-10 py-4 bg-gold text-dark font-bold rounded-full text-base hover:bg-gold-light transition-all duration-300">
+                            {{ t('nav.bookNow') }}
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                        </Link>
+                    </div>
 
-                <!-- Footer info -->
-                <div ref="mobileFooter" class="opacity-0 mt-12 text-center">
-                    <p class="text-white/20 text-xs tracking-wider">{{ c('footer.phone') }}</p>
-                    <p class="text-white/20 text-xs tracking-wider mt-1">{{ c('footer.email') }}</p>
+                    <!-- Footer info -->
+                    <div class="mt-12 text-center">
+                        <p class="text-white/20 text-xs tracking-wider">{{ c('footer.phone') }}</p>
+                        <p class="text-white/20 text-xs tracking-wider mt-1">{{ c('footer.email') }}</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
 
         <!-- Flash Messages -->
         <transition
@@ -182,20 +189,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { useI18n } from '@/i18n.js';
-import gsap from 'gsap';
 
 const { t, c, getLocale, toggleLocale } = useI18n();
 
 const scrolled = ref(false);
 const mobileOpen = ref(false);
-const mobileMenuOverlay = ref(null);
-const mobileNavItems = reactive([]);
-const mobileCta = ref(null);
-const mobileFooter = ref(null);
-let mobileTimeline = null;
 
 const mobileLinks = [
     { href: '/', labelKey: 'nav.home' },
@@ -221,56 +222,11 @@ onUnmounted(() => {
 function openMobile() {
     mobileOpen.value = true;
     document.body.style.overflow = 'hidden';
-
-    nextTick(() => {
-        if (mobileTimeline) mobileTimeline.kill();
-
-        const overlay = mobileMenuOverlay.value;
-        const items = Object.values(mobileNavItems).filter(Boolean);
-        const cta = mobileCta.value;
-        const footer = mobileFooter.value;
-
-        mobileTimeline = gsap.timeline();
-
-        mobileTimeline
-            .set(overlay, { pointerEvents: 'auto' })
-            .fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' })
-            .fromTo(items,
-                { opacity: 0, y: 40, rotateX: 15 },
-                { opacity: 1, y: 0, rotateX: 0, duration: 0.6, stagger: 0.07, ease: 'power3.out' },
-                '-=0.15'
-            )
-            .fromTo(cta,
-                { opacity: 0, y: 20 },
-                { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-                '-=0.2'
-            )
-            .fromTo(footer,
-                { opacity: 0 },
-                { opacity: 1, duration: 0.4, ease: 'power2.out' },
-                '-=0.2'
-            );
-    });
 }
 
 function closeMobile() {
-    if (mobileTimeline) mobileTimeline.kill();
-
-    const overlay = mobileMenuOverlay.value;
-    const items = Object.values(mobileNavItems).filter(Boolean);
-
-    mobileTimeline = gsap.timeline({
-        onComplete: () => {
-            mobileOpen.value = false;
-            document.body.style.overflow = '';
-        }
-    });
-
-    mobileTimeline
-        .to(items, { opacity: 0, y: -20, duration: 0.25, stagger: 0.03, ease: 'power2.in' })
-        .to([mobileCta.value, mobileFooter.value], { opacity: 0, duration: 0.2, ease: 'power2.in' }, '-=0.15')
-        .to(overlay, { opacity: 0, duration: 0.3, ease: 'power2.in' }, '-=0.1')
-        .set(overlay, { pointerEvents: 'none' });
+    mobileOpen.value = false;
+    document.body.style.overflow = '';
 }
 
 function toggleMobile() {

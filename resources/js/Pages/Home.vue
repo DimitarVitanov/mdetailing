@@ -1,11 +1,11 @@
 <template>
     <MainLayout>
         <!-- ═══════════════════ HERO ═══════════════════ -->
-        <section ref="heroSection" class="relative h-screen overflow-hidden">
+        <section class="relative h-screen overflow-hidden">
             <!-- Cinematic background image -->
             <div class="absolute inset-0">
                 <img src="/img/webp/hero-studio.webp"
-                     alt="MDetailing Premium Car Care Studio" class="w-full h-full object-cover scale-110" ref="heroBg" />
+                     alt="MDetailing Premium Car Care Studio" class="w-full h-full object-cover" />
                 <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-dark"></div>
                 <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent"></div>
             </div>
@@ -18,14 +18,14 @@
             <div class="relative z-10 h-full flex items-center">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <div class="max-w-3xl">
-                        <div ref="heroBadge" class="md:opacity-0">
+                        <div data-aos="fade-down" data-aos-delay="100">
                             <span class="inline-flex items-center glass-gold rounded-full px-5 py-2 mb-8">
                                 <span class="w-2 h-2 bg-gold rounded-full mr-3 animate-pulse"></span>
                                 <span class="text-gold/90 text-xs font-semibold tracking-[0.25em] uppercase">{{ c('hero.badge') }}</span>
                             </span>
                         </div>
 
-                        <h1 ref="heroTitle" class="md:opacity-0">
+                        <h1 data-aos="fade-up" data-aos-delay="200">
                             <span class="block text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[0.9]" style="font-family: 'Playfair Display', serif;">
                                 {{ c('hero.title1') }}
                             </span>
@@ -34,11 +34,11 @@
                             </span>
                         </h1>
 
-                        <p ref="heroText" class="md:opacity-0 text-lg sm:text-xl text-white/60 max-w-xl mt-8 leading-relaxed font-light">
+                        <p data-aos="fade-up" data-aos-delay="300" class="text-lg sm:text-xl text-white/60 max-w-xl mt-8 leading-relaxed font-light">
                             {{ c('hero.subtitle') }}
                         </p>
 
-                        <div ref="heroCta" class="md:opacity-0 flex flex-col sm:flex-row gap-4 mt-10">
+                        <div data-aos="fade-up" data-aos-delay="400" class="flex flex-col sm:flex-row gap-4 mt-10">
                             <Link href="/contact"
                                   class="group inline-flex items-center justify-center px-8 py-4 bg-gold text-dark font-bold rounded-full text-base hover:bg-gold-light hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] transition-all duration-500">
                                 <span>{{ c('hero.cta') }}</span>
@@ -54,7 +54,7 @@
             </div>
 
             <!-- Scroll indicator -->
-            <div ref="heroScroll" class="md:opacity-0 absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+            <div data-aos="fade-up" data-aos-delay="500" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
                 <div class="w-[1px] h-16 bg-gradient-to-b from-transparent via-gold/50 to-transparent scroll-line"></div>
             </div>
         </section>
@@ -75,7 +75,7 @@
         <section class="py-16 md:py-28 bg-dark relative overflow-hidden bg-noise">
             <div class="absolute -top-48 -right-48 w-[600px] h-[600px] bg-gold/[0.02] rounded-full blur-[150px]"></div>
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-                <div ref="servicesHeader" class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-10 md:mb-16 gap-4">
+                <div data-aos="fade-up" class="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-10 md:mb-16 gap-4">
                     <div>
                         <span class="text-gold text-xs font-bold tracking-[0.3em] uppercase">{{ c('services.label') }}</span>
                         <h2 class="text-3xl md:text-4xl lg:text-6xl font-extrabold mt-2 md:mt-3 leading-tight" style="font-family: 'Playfair Display', serif;">
@@ -88,8 +88,9 @@
                     </Link>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" ref="serviceGrid">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     <div v-for="(service, index) in services" :key="service.id"
+                         data-aos="fade-up" :data-aos-delay="index * 100"
                          class="group relative bg-surface rounded-2xl overflow-hidden border border-white/[0.04] hover:border-gold/20 transition-all duration-500">
                         <div class="h-36 md:h-48 relative overflow-hidden">
                             <img :src="serviceImages[index % serviceImages.length]"
@@ -121,7 +122,7 @@
         <section class="relative bg-darker overflow-hidden">
             <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[80vh]">
                 <!-- Image side -->
-                <div ref="showcaseImg" class="relative overflow-hidden">
+                <div data-aos="fade-right" class="relative overflow-hidden">
                     <img src="/img/webp/audi-black-front.webp"
                          alt="Audi detailing under studio lights"
                          class="w-full h-full object-cover min-h-[400px] lg:min-h-0" />
@@ -130,7 +131,7 @@
                 </div>
                 <!-- Content side -->
                 <div class="flex items-center px-8 lg:px-16 py-16 lg:py-0 relative">
-                    <div ref="showcaseContent" class="max-w-lg">
+                    <div data-aos="fade-left" class="max-w-lg">
                         <span class="text-gold text-xs font-bold tracking-[0.3em] uppercase">{{ c('showcase.label') }}</span>
                         <h2 class="text-4xl lg:text-5xl font-extrabold mt-4 mb-8 leading-tight" style="font-family: 'Playfair Display', serif;">
                             {{ c('showcase.title1') }}<br>{{ c('showcase.title2') }} <span class="italic text-gradient-gold">{{ c('showcase.titleAccent') }}</span>
@@ -152,10 +153,10 @@
         </section>
 
         <!-- ═══════════════════ STATS BAR ═══════════════════ -->
-        <section ref="statsSection" class="py-20 bg-surface relative border-y border-white/[0.04] overflow-hidden shine">
+        <section class="py-20 bg-surface relative border-y border-white/[0.04] overflow-hidden shine">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 lg:divide-x divide-white/[0.06]" ref="statsGrid">
-                    <div v-for="(stat, i) in stats" :key="i" class="text-center lg:px-8">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 lg:divide-x divide-white/[0.06]">
+                    <div v-for="(stat, i) in stats" :key="i" data-aos="fade-up" :data-aos-delay="i * 100" class="text-center lg:px-8">
                         <div class="text-5xl lg:text-6xl font-black text-gradient-gold leading-none mb-2" style="font-family: 'Playfair Display', serif;">
                             {{ stat.value }}
                         </div>
@@ -168,7 +169,7 @@
         <!-- ═══════════════════ PORTFOLIO ═══════════════════ -->
         <section v-if="portfolio.length" class="py-28 bg-dark bg-noise">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div ref="portfolioHeader" class="text-center mb-16">
+                <div data-aos="fade-up" class="text-center mb-16">
                     <span class="text-gold text-xs font-bold tracking-[0.3em] uppercase">{{ c('portfolio.label') }}</span>
                     <h2 class="text-4xl lg:text-6xl font-extrabold mt-3" style="font-family: 'Playfair Display', serif;">
                         {{ c('portfolio.title') }} <span class="text-gradient-gold italic">{{ c('portfolio.titleAccent') }}</span>
@@ -176,8 +177,9 @@
                 </div>
 
                 <!-- Bento grid layout -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" ref="portfolioGrid">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div v-for="(item, index) in portfolio" :key="item.id"
+                         data-aos="fade-up" :data-aos-delay="index * 100"
                          :class="index === 0 ? 'md:col-span-2 md:row-span-2' : ''"
                          class="group relative overflow-hidden rounded-2xl bg-surface cursor-pointer"
                          :style="{ aspectRatio: index === 0 ? '16/10' : '4/3' }">
@@ -211,15 +213,16 @@
         <section v-if="testimonials.length" class="py-28 bg-darker relative overflow-hidden">
             <div class="absolute inset-0" style="background-image: radial-gradient(circle at 20% 50%, rgba(201,168,76,0.04) 0%, transparent 50%);"></div>
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-                <div ref="testimonialsHeader" class="text-center mb-16">
+                <div data-aos="fade-up" class="text-center mb-16">
                     <span class="text-gold text-xs font-bold tracking-[0.3em] uppercase">{{ c('testimonials.label') }}</span>
                     <h2 class="text-4xl lg:text-6xl font-extrabold mt-3" style="font-family: 'Playfair Display', serif;">
                         {{ c('testimonials.title') }} <span class="text-gradient-gold italic">{{ c('testimonials.titleAccent') }}</span>
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" ref="testimonialCards">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div v-for="(testimonial, i) in testimonials" :key="testimonial.id"
+                         data-aos="fade-up" :data-aos-delay="i * 100"
                          class="glass rounded-2xl p-8 hover:border-gold/15 transition-all duration-500 group"
                          :class="i === 1 ? 'lg:-translate-y-4' : ''">
                         <!-- Quote mark -->
@@ -254,7 +257,7 @@
                 <div class="absolute inset-0 bg-black/75"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-dark via-transparent to-dark/50"></div>
             </div>
-            <div ref="ctaSection" class="relative z-10 max-w-4xl mx-auto px-4 text-center">
+            <div data-aos="fade-up" class="relative z-10 max-w-4xl mx-auto px-4 text-center">
                 <h2 class="text-4xl lg:text-7xl font-extrabold leading-tight mb-6" style="font-family: 'Playfair Display', serif;">
                     {{ c('cta.title1') }}<br><span class="text-gradient-gold italic">{{ c('cta.titleAccent') }}</span>
                 </h2>
@@ -278,42 +281,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { computed } from 'vue';
 import { Link, Head } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import { useI18n } from '@/i18n.js';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const { t, c, localized, price } = useI18n();
-
-gsap.registerPlugin(ScrollTrigger);
 
 const props = defineProps({
     services: Array,
     portfolio: Array,
     testimonials: Array,
 });
-
-// Refs
-const heroSection = ref(null);
-const heroBg = ref(null);
-const heroBadge = ref(null);
-const heroTitle = ref(null);
-const heroText = ref(null);
-const heroCta = ref(null);
-const heroScroll = ref(null);
-const servicesHeader = ref(null);
-const serviceGrid = ref(null);
-const showcaseImg = ref(null);
-const showcaseContent = ref(null);
-const statsSection = ref(null);
-const statsGrid = ref(null);
-const portfolioHeader = ref(null);
-const portfolioGrid = ref(null);
-const testimonialsHeader = ref(null);
-const testimonialCards = ref(null);
-const ctaSection = ref(null);
 
 // Data
 const marqueeItems = computed(() => t('marquee'));
@@ -350,114 +329,6 @@ const stats = computed(() => [
     { value: c('stats.rating.value'), label: c('stats.rating.label') },
 ]);
 
-onMounted(() => {
-    nextTick(() => {
-        initAnimations();
-    });
-});
-
-const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
-// Mobile: CSS-only reveal via IntersectionObserver. Desktop: GSAP ScrollTrigger.
-function fadeIn(el, opts = {}) {
-    if (!el) return;
-    const targets = opts.children ? Array.from(el.children || []) : [el];
-    if (!targets.length) return;
-
-    if (isMobile) {
-        targets.forEach((target, i) => {
-            const rect = target.getBoundingClientRect();
-            // Already visible in viewport — show immediately
-            if (rect.top < window.innerHeight) {
-                return;
-            }
-            target.style.opacity = '0';
-            target.style.transform = i % 2 === 0 ? 'translateX(-20px)' : 'translateX(20px)';
-            target.style.transition = `opacity 0.5s ease ${i * 0.08}s, transform 0.5s ease ${i * 0.08}s`;
-        });
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateX(0)';
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.05, rootMargin: '0px 0px -5% 0px' });
-        targets.forEach(target => {
-            if (target.style.opacity === '0') observer.observe(target);
-        });
-    } else {
-        gsap.fromTo(targets,
-            { y: opts.y ?? 24, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                duration: opts.duration || 0.4,
-                stagger: opts.stagger || 0,
-                ease: 'power2.out',
-                scrollTrigger: {
-                    trigger: opts.trigger || el,
-                    start: opts.start || 'top 88%',
-                    once: true,
-                },
-            }
-        );
-    }
-}
-
-function initAnimations() {
-    // Hero parallax — desktop only
-    if (!isMobile && heroBg.value) {
-        gsap.to(heroBg.value, {
-            yPercent: 8,
-            ease: 'none',
-            scrollTrigger: {
-                trigger: heroSection.value,
-                start: 'top top',
-                end: 'bottom top',
-                scrub: true,
-            },
-        });
-    }
-
-    // Hero content — on mobile, content is already visible (no opacity-0)
-    if (!isMobile) {
-        const heroEls = [heroBadge.value, heroTitle.value, heroText.value, heroCta.value].filter(Boolean);
-        gsap.set(heroEls, { y: 20, opacity: 0 });
-        gsap.set(heroScroll.value, { opacity: 0 });
-
-        const heroTl = gsap.timeline({ delay: 0.05, defaults: { ease: 'power2.out' } });
-        heroTl
-            .to(heroBadge.value, { y: 0, opacity: 1, duration: 0.3 })
-            .to(heroTitle.value, { y: 0, opacity: 1, duration: 0.35 }, '-=0.15')
-            .to(heroText.value, { y: 0, opacity: 1, duration: 0.3 }, '-=0.15')
-            .to(heroCta.value, { y: 0, opacity: 1, duration: 0.3 }, '-=0.15')
-            .to(heroScroll.value, { opacity: 0.5, duration: 0.3 }, '-=0.1');
-    }
-
-    // Services
-    fadeIn(servicesHeader.value);
-    fadeIn(serviceGrid.value, { children: true, stagger: 0.04, start: 'top 92%' });
-
-    // Showcase
-    fadeIn(showcaseImg.value, { y: 0, duration: 0.5 });
-    fadeIn(showcaseContent.value, { children: true, stagger: 0.04 });
-
-    // Stats
-    fadeIn(statsGrid.value, { children: true, stagger: 0.03, trigger: statsSection.value });
-
-    // Portfolio
-    fadeIn(portfolioHeader.value);
-    fadeIn(portfolioGrid.value, { children: true, stagger: 0.04 });
-
-    // Testimonials
-    fadeIn(testimonialsHeader.value);
-    fadeIn(testimonialCards.value, { children: true, stagger: 0.05 });
-
-    // CTA
-    fadeIn(ctaSection.value, { children: true, stagger: 0.04 });
-}
 </script>
 
 <style scoped>

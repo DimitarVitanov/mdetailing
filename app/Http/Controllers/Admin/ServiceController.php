@@ -26,19 +26,24 @@ class ServiceController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'name_mk' => 'nullable|string|max:255',
             'short_description' => 'required|string|max:500',
+            'short_description_mk' => 'nullable|string|max:500',
             'description' => 'required|string',
+            'description_mk' => 'nullable|string',
             'price_from' => 'required|numeric|min:0',
             'price_to' => 'nullable|numeric|min:0',
             'duration' => 'nullable|string|max:100',
             'icon' => 'nullable|string|max:100',
             'image' => 'nullable|image|max:2048',
             'sort_order' => 'nullable|integer',
-            'is_featured' => 'boolean',
-            'is_active' => 'boolean',
+            'is_featured' => 'nullable',
+            'is_active' => 'nullable',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+        $validated['is_featured'] = filter_var($request->input('is_featured'), FILTER_VALIDATE_BOOLEAN);
+        $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('services', 'public');
@@ -60,19 +65,24 @@ class ServiceController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'name_mk' => 'nullable|string|max:255',
             'short_description' => 'required|string|max:500',
+            'short_description_mk' => 'nullable|string|max:500',
             'description' => 'required|string',
+            'description_mk' => 'nullable|string',
             'price_from' => 'required|numeric|min:0',
             'price_to' => 'nullable|numeric|min:0',
             'duration' => 'nullable|string|max:100',
             'icon' => 'nullable|string|max:100',
             'image' => 'nullable|image|max:2048',
             'sort_order' => 'nullable|integer',
-            'is_featured' => 'boolean',
-            'is_active' => 'boolean',
+            'is_featured' => 'nullable',
+            'is_active' => 'nullable',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
+        $validated['is_featured'] = filter_var($request->input('is_featured'), FILTER_VALIDATE_BOOLEAN);
+        $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('services', 'public');

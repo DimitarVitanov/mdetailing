@@ -94,7 +94,7 @@
                          data-aos="fade-up" :data-aos-delay="index * 100"
                          class="group relative bg-surface rounded-2xl overflow-hidden border border-white/[0.04] hover:border-gold/20 transition-all duration-500">
                         <div class="h-36 md:h-48 relative overflow-hidden">
-                            <img :src="serviceImages[index % serviceImages.length]"
+                            <img :src="service.image ? '/storage/' + service.image : serviceImages[index % serviceImages.length]"
                                  :alt="localized(service, 'name')"
                                  class="w-full h-full object-cover" />
                             <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent"></div>

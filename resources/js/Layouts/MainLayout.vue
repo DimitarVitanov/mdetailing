@@ -7,7 +7,7 @@
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
                     <Link href="/" class="flex items-center group relative z-[60]">
-                        <img src="/img/webp/mdetailing-logo.webp" alt="MDetailing Premium Car Care" class="h-12 w-auto brightness-[1.8]" />
+                        <img src="/img/webp/logo.png" alt="MDetailing Premium Car Care" class="h-12 w-auto brightness-[1.8]" />
                     </Link>
 
                     <!-- Desktop Nav -->

@@ -97,7 +97,6 @@
                     <!-- Footer info -->
                     <div class="mt-12 text-center">
                         <p class="text-white/20 text-xs tracking-wider">{{ c('footer.phone') }}</p>
-                        <p v-if="c('footer.email')" class="text-white/20 text-xs tracking-wider mt-1">{{ c('footer.email') }}</p>
                     </div>
                 </div>
             </div>
@@ -173,9 +172,20 @@
                         <h4 class="text-white text-xs font-bold tracking-[0.2em] uppercase mb-5">{{ t('footer.getInTouch') }}</h4>
                         <ul class="space-y-3">
                             <li class="text-white/30 text-sm">{{ c('footer.phone') }}</li>
-                            <li v-if="c('footer.email')" class="text-white/30 text-sm">{{ c('footer.email') }}</li>
+                            <!-- Email hidden for now -->
                             <li class="text-white/30 text-sm">{{ c('footer.address') }}</li>
                         </ul>
+                        <div class="mt-4 rounded-lg overflow-hidden border border-white/5">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2964.5!2d21.43!3d41.99!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a9ff8fcd4a476b%3A0x1adc42825681bd3c!2sMDetailing.mk!5e0!3m2!1smk!2smk!4v1700000000000"
+                                width="100%"
+                                height="150"
+                                style="border:0; filter: grayscale(1) invert(0.92) contrast(0.9);"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                            ></iframe>
+                        </div>
                     </div>
                 </div>
 

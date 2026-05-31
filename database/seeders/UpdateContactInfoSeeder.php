@@ -21,6 +21,12 @@ class UpdateContactInfoSeeder extends Seeder
             'value_mk' => '',
         ]);
 
+        // Update address
+        SiteContent::where('key', 'footer.address')->update([
+            'value_en' => 'Strumica, North Macedonia',
+            'value_mk' => 'Струмица, Северна Македонија',
+        ]);
+
         // Fix contact page title
         SiteContent::where('key', 'contactPage.title')->update([
             'value_mk' => 'Закажете',

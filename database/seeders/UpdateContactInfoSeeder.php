@@ -21,6 +21,15 @@ class UpdateContactInfoSeeder extends Seeder
             'value_mk' => '',
         ]);
 
-        $this->command->info('Updated phone to +389 757 005 and cleared email.');
+        // Fix contact page title
+        SiteContent::where('key', 'contactPage.title')->update([
+            'value_mk' => 'Закажете',
+        ]);
+
+        SiteContent::where('key', 'contactPage.titleAccent')->update([
+            'value_mk' => 'Термин',
+        ]);
+
+        $this->command->info('Updated phone, cleared email, fixed contact page title.');
     }
 }

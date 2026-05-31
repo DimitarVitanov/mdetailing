@@ -346,7 +346,9 @@ export function useI18n() {
         const page = usePage();
         const sc = page.props.siteContent;
         if (!sc || !sc[key]) return fallback || key;
-        return sc[key][state.locale] || sc[key]['en'] || fallback || key;
+        const val = sc[key][state.locale] || sc[key]['en'];
+        if (val === '' || val === null || val === undefined) return fallback;
+        return val || fallback || key;
     }
 
     function price(amount) {

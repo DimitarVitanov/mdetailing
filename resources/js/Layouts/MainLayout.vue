@@ -7,7 +7,7 @@
                 <div class="flex items-center justify-between">
                     <!-- Logo -->
                     <Link href="/" class="flex items-center group relative z-[60]">
-                        <img src="/img/webp/mdetailing-logo.webp" alt="MDetailing Premium Car Care" class="h-12 w-auto" />
+                        <img src="/img/webp/mdetailing-logo.webp" alt="MDetailing Premium Car Care" class="h-12 w-auto brightness-[1.8]" />
                     </Link>
 
                     <!-- Desktop Nav -->
@@ -127,7 +127,7 @@
                     <!-- Brand -->
                     <div class="md:col-span-4">
                         <Link href="/" class="inline-block mb-5">
-                            <img src="/img/webp/mdetailing-logo.webp" alt="MDetailing Premium Car Care" class="h-14 w-auto" />
+                            <img src="/img/webp/mdetailing-logo.webp" alt="MDetailing Premium Car Care" class="h-14 w-auto brightness-[1.8]" />
                         </Link>
                         <p class="text-white/30 text-sm leading-relaxed max-w-xs">
                             {{ c('footer.tagline') }}

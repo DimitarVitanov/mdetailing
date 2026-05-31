@@ -11,8 +11,8 @@ class UpdateContactInfoSeeder extends Seeder
     {
         // Update phone number
         SiteContent::where('key', 'footer.phone')->update([
-            'value_en' => '+389 757 005',
-            'value_mk' => '+389 757 005',
+            'value_en' => '+389 75 657 005',
+            'value_mk' => '+389 75 657 005',
         ]);
 
         // Hide email by clearing the value

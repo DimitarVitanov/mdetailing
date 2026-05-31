@@ -36,6 +36,16 @@ class UpdateContactInfoSeeder extends Seeder
             'value_mk' => 'Термин',
         ]);
 
-        $this->command->info('Updated phone, cleared email, fixed contact page title.');
+        // Fix hero CTA button text
+        SiteContent::where('key', 'hero.cta')->update([
+            'value_mk' => 'Закажете Термин',
+        ]);
+
+        // Fix bottom CTA button text
+        SiteContent::where('key', 'cta.button')->update([
+            'value_mk' => 'Закажете Термин',
+        ]);
+
+        $this->command->info('Updated phone, cleared email, fixed contact page title and hero CTA.');
     }
 }

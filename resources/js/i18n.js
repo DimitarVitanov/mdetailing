@@ -38,7 +38,6 @@ const translations = {
                 { title: 'Certified Master Detailers', description: 'IDA-certified professionals with 10,000+ hours of hands-on experience.' },
                 { title: 'Laboratory-Grade Products', description: 'We use only Gtechniq, Gyeon, and CarPro — the finest products in the industry.' },
                 { title: '100% Satisfaction Promise', description: "Not happy? We re-do the work at no cost. No questions asked." },
-                { title: 'Concierge Scheduling', description: 'We pick up and deliver your vehicle. Detailing has never been this effortless.' },
             ],
         },
         stats: {
@@ -191,7 +190,6 @@ const translations = {
                 { title: 'Сертифицирани Мајстори', description: 'IDA-сертифицирани професионалци со 10,000+ часови практично искуство.' },
                 { title: 'Лабораториски Производи', description: 'Користиме само Gtechniq, Gyeon и CarPro — најфините производи во индустријата.' },
                 { title: '100% Гаранција за Задоволство', description: 'Не сте задоволни? Повторно го работиме бесплатно. Без прашања.' },
-                { title: 'Конциерж Закажување', description: 'Го земаме и доставуваме вашето возило. Деталингот никогаш не бил полесен.' },
             ],
         },
         stats: {

@@ -97,7 +97,7 @@
                     <!-- Footer info -->
                     <div class="mt-12 text-center">
                         <p class="text-white/20 text-xs tracking-wider">{{ c('footer.phone') }}</p>
-                        <p class="text-white/20 text-xs tracking-wider mt-1">{{ c('footer.email') }}</p>
+                        <p v-if="c('footer.email')" class="text-white/20 text-xs tracking-wider mt-1">{{ c('footer.email') }}</p>
                     </div>
                 </div>
             </div>
@@ -173,7 +173,7 @@
                         <h4 class="text-white text-xs font-bold tracking-[0.2em] uppercase mb-5">{{ t('footer.getInTouch') }}</h4>
                         <ul class="space-y-3">
                             <li class="text-white/30 text-sm">{{ c('footer.phone') }}</li>
-                            <li class="text-white/30 text-sm">{{ c('footer.email') }}</li>
+                            <li v-if="c('footer.email')" class="text-white/30 text-sm">{{ c('footer.email') }}</li>
                             <li class="text-white/30 text-sm">{{ c('footer.address') }}</li>
                         </ul>
                     </div>

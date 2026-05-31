@@ -28,7 +28,7 @@
                                         <p class="text-white font-medium">{{ c('footer.phone') }}</p>
                                     </div>
                                 </div>
-                                <div class="flex items-start space-x-4">
+                                <div v-if="c('footer.email')" class="flex items-start space-x-4">
                                     <div class="w-10 h-10 bg-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
                                         <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                     </div>
@@ -56,6 +56,18 @@
                                 <div class="flex justify-between"><span class="text-gray-light">{{ t('contactPage.saturday') }}</span><span class="text-white">{{ c('contactPage.hours.saturday') }}</span></div>
                                 <div class="flex justify-between"><span class="text-gray-light">{{ t('contactPage.sunday') }}</span><span class="text-red-400">{{ c('contactPage.hours.sunday') }}</span></div>
                             </div>
+                        </div>
+
+                        <div class="mt-6 rounded-xl overflow-hidden border border-white/5">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2964.5!2d21.43!3d41.99!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a9ff8fcd4a476b%3A0x1adc42825681bd3c!2sMDetailing.mk!5e0!3m2!1smk!2smk!4v1700000000000"
+                                width="100%"
+                                height="200"
+                                style="border:0; filter: grayscale(1) invert(0.92) contrast(0.9);"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                            ></iframe>
                         </div>
                     </div>
 

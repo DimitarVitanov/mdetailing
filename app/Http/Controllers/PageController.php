@@ -6,58 +6,94 @@ use App\Models\Booking;
 use App\Models\PortfolioItem;
 use App\Models\Service;
 use App\Models\Testimonial;
+use App\Support\Seo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PageController extends Controller
 {
+    /** Columns the service cards use; the long HTML description is only sent to its own page. */
+    private const SERVICE_CARD = ['id', 'name', 'name_mk', 'slug', 'short_description', 'short_description_mk', 'price_from', 'price_to', 'duration', 'image', 'is_featured', 'sort_order'];
+
+    private const PORTFOLIO_CARD = ['id', 'title', 'title_mk', 'description', 'description_mk', 'before_image', 'after_image', 'category', 'service_id', 'sort_order'];
+
+    private const TESTIMONIAL_CARD = ['id', 'client_name', 'client_vehicle', 'content', 'content_mk', 'rating'];
+
     public function home()
     {
         return Inertia::render('Home', [
-            'services' => Service::active()->featured()->orderBy('sort_order')->limit(6)->get(),
-            'portfolio' => PortfolioItem::active()->featured()->orderBy('sort_order')->limit(6)->get(),
-            'testimonials' => Testimonial::active()->featured()->latest()->limit(6)->get(),
+            'services' => Service::active()->featured()->orderBy('sort_order')->limit(6)->get(self::SERVICE_CARD),
+            'portfolio' => PortfolioItem::active()->featured()->orderBy('sort_order')->limit(6)->get(self::PORTFOLIO_CARD),
+            'testimonials' => Testimonial::active()->featured()->latest()->limit(6)->get(self::TESTIMONIAL_CARD),
+            'seo' => Seo::forPage('home'),
+        ])->withViewData([
+            'preloadImage' => ['base' => '/img/opt/hero-studio', 'widths' => [640, 1024, 1600, 2000], 'sizes' => '100vw'],
         ]);
     }
 
     public function services()
     {
         return Inertia::render('Services', [
-            'services' => Service::active()->orderBy('sort_order')->get(),
+            'services' => Service::active()->orderBy('sort_order')->get(self::SERVICE_CARD),
+            'seo' => Seo::forPage('services', [__('nav.services') => '/services']),
         ]);
     }
 
     public function serviceShow(Service $service)
     {
+        // A service switched off in the admin shouldn't stay reachable (or indexed) by its old link.
+        abort_unless($service->is_active, 404);
+
+        $service->load(['portfolioItems' => fn ($query) => $query->active()->orderBy('sort_order')->select(self::PORTFOLIO_CARD)]);
+        $name = Seo::localized($service, 'name');
+        $image = $service->image ? url("/media/1024/{$this->mediaPath($service->image)}") : null;
+
         return Inertia::render('ServiceDetail', [
-            'service' => $service->load('portfolioItems'),
+            'service' => $service,
+            'related' => Service::active()->whereKeyNot($service->id)->orderBy('sort_order')->limit(3)->get(self::SERVICE_CARD),
+            'seo' => Seo::page(
+                title: $name,
+                description: Seo::localized($service, 'short_description'),
+                image: $image,
+                imageAlt: $name,
+                breadcrumbs: [__('nav.services') => '/services', $name => "/services/{$service->slug}"],
+                schema: [Seo::service($service, $image)],
+            ),
         ]);
     }
 
     public function portfolio()
     {
         return Inertia::render('Portfolio', [
-            'items' => PortfolioItem::active()->with('service')->orderBy('sort_order')->get(),
+            'items' => PortfolioItem::active()->orderBy('sort_order')->get(self::PORTFOLIO_CARD),
             'categories' => PortfolioItem::active()->distinct()->pluck('category')->filter()->values(),
+            'seo' => Seo::forPage('portfolio', [__('nav.portfolio') => '/portfolio']),
         ]);
     }
 
     public function about()
     {
         return Inertia::render('About', [
-            'testimonials' => Testimonial::active()->latest()->get(),
+            'testimonials' => Testimonial::active()->latest()->get(self::TESTIMONIAL_CARD),
+            'seo' => Seo::forPage('about', [__('nav.about') => '/about']),
         ]);
     }
 
     public function contact()
     {
         return Inertia::render('Contact', [
-            'services' => Service::active()->orderBy('sort_order')->get(),
+            'services' => Service::active()->orderBy('sort_order')->get(['id', 'name', 'name_mk', 'slug']),
+            'seo' => Seo::forPage('contact', [__('nav.contact') => '/contact']),
         ]);
     }
 
     public function bookingStore(Request $request)
     {
+        // Honeypot: a field people never see. Bots that fill it get the normal reply and no booking.
+        if (filled($request->input('website'))) {
+            return back()->with('success', __('booking.sent'));
+        }
+
         $validated = $request->validate([
             'client_name' => 'required|string|max:255',
             'client_email' => 'required|email|max:255',
@@ -73,6 +109,12 @@ class PageController extends Controller
 
         Booking::create($validated);
 
-        return back()->with('success', 'Your booking request has been submitted! We will contact you shortly.');
+        return back()->with('success', __('booking.sent'));
+    }
+
+    /** The /media URL path for an uploaded file (see MediaController). */
+    private function mediaPath(string $path): string
+    {
+        return str_ends_with(strtolower($path), '.webp') ? $path : "{$path}.webp";
     }
 }

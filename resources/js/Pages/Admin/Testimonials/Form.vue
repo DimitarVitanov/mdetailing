@@ -24,6 +24,10 @@
                     <label class="block text-sm font-medium text-gray-300 mb-2">Testimonial Content *</label>
                     <textarea v-model="form.content" rows="4" required class="w-full bg-gray-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors resize-none"></textarea>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Содржина (MK)</label>
+                    <textarea v-model="form.content_mk" rows="4" class="w-full bg-gray-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors resize-none"></textarea>
+                </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Rating</label>
@@ -68,6 +72,7 @@ const form = useForm({
     client_name: props.testimonial?.client_name || '',
     client_vehicle: props.testimonial?.client_vehicle || '',
     content: props.testimonial?.content || '',
+    content_mk: props.testimonial?.content_mk || '',
     rating: props.testimonial?.rating || 5,
     is_featured: props.testimonial?.is_featured || false,
     is_active: props.testimonial?.is_active ?? true,

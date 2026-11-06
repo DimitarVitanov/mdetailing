@@ -10,14 +10,22 @@
 
             <form @submit.prevent="submit" class="bg-gray-800/50 border border-white/5 rounded-xl p-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Title *</label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Title (EN) *</label>
                         <input v-model="form.title" type="text" required class="w-full bg-gray-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors">
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Наслов (MK)</label>
+                        <input v-model="form.title_mk" type="text" class="w-full bg-gray-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors">
+                    </div>
 
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Description (EN)</label>
                         <textarea v-model="form.description" rows="4" class="w-full bg-gray-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Опис (MK)</label>
+                        <textarea v-model="form.description_mk" rows="4" class="w-full bg-gray-900 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors resize-none"></textarea>
                     </div>
 
                     <div>
@@ -80,7 +88,9 @@ const props = defineProps({ item: Object, services: Array });
 
 const form = useForm({
     title: props.item?.title || '',
+    title_mk: props.item?.title_mk || '',
     description: props.item?.description || '',
+    description_mk: props.item?.description_mk || '',
     before_image: null,
     after_image: null,
     category: props.item?.category || '',

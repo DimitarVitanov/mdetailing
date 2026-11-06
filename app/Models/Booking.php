@@ -22,7 +22,7 @@ class Booking extends Model
     ];
 
     protected $casts = [
-        'preferred_date' => 'date',
+        'preferred_date' => 'date:Y-m-d',
     ];
 
     public function service(): BelongsTo

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PortfolioItem;
 use App\Models\Service;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Support\Slug;
 use Inertia\Inertia;
 
 class PortfolioController extends Controller
@@ -29,9 +29,11 @@ class PortfolioController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'title_mk' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'before_image' => 'nullable|image|max:2048',
-            'after_image' => 'nullable|image|max:2048',
+            'description_mk' => 'nullable|string',
+            'before_image' => 'nullable|image|max:10240',
+            'after_image' => 'nullable|image|max:10240',
             'category' => 'nullable|string|max:100',
             'service_id' => 'nullable|exists:services,id',
             'is_featured' => 'boolean',
@@ -39,7 +41,7 @@ class PortfolioController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
-        $validated['slug'] = Str::slug($validated['title']);
+        $validated['slug'] = Slug::unique(PortfolioItem::class, $validated['title']);
 
         if ($request->hasFile('before_image')) {
             $validated['before_image'] = $request->file('before_image')->store('portfolio', 'public');
@@ -47,6 +49,8 @@ class PortfolioController extends Controller
         if ($request->hasFile('after_image')) {
             $validated['after_image'] = $request->file('after_image')->store('portfolio', 'public');
         }
+
+        $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
 
         PortfolioItem::create($validated);
 
@@ -65,9 +69,11 @@ class PortfolioController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'title_mk' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'before_image' => 'nullable|image|max:2048',
-            'after_image' => 'nullable|image|max:2048',
+            'description_mk' => 'nullable|string',
+            'before_image' => 'nullable|image|max:10240',
+            'after_image' => 'nullable|image|max:10240',
             'category' => 'nullable|string|max:100',
             'service_id' => 'nullable|exists:services,id',
             'is_featured' => 'boolean',
@@ -75,14 +81,18 @@ class PortfolioController extends Controller
             'sort_order' => 'nullable|integer',
         ]);
 
-        $validated['slug'] = Str::slug($validated['title']);
+        $validated['slug'] = Slug::unique(PortfolioItem::class, $validated['title'], $portfolio->id);
 
-        if ($request->hasFile('before_image')) {
-            $validated['before_image'] = $request->file('before_image')->store('portfolio', 'public');
+        // No new file chosen means "keep the current photo", not "remove it".
+        foreach (['before_image', 'after_image'] as $field) {
+            if ($request->hasFile($field)) {
+                $validated[$field] = $request->file($field)->store('portfolio', 'public');
+            } else {
+                unset($validated[$field]);
+            }
         }
-        if ($request->hasFile('after_image')) {
-            $validated['after_image'] = $request->file('after_image')->store('portfolio', 'public');
-        }
+
+        $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
 
         $portfolio->update($validated);
 

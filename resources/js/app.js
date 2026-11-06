@@ -1,54 +1,31 @@
-import { createApp, h } from 'vue';
-import { createInertiaApp, router } from '@inertiajs/vue3';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import '../css/app.css';
-import Lenis from 'lenis';
-import 'lenis/dist/lenis.css';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import { createApp, createSSRApp, h } from 'vue';
+import { createInertiaApp } from '@inertiajs/vue3';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { reveal } from './directives/reveal';
+import { restoreSavedLocale } from './i18n';
+import { startSmoothScroll } from './lib/motion';
 
-const isMobile = window.innerWidth < 768;
-
-if (!isMobile) {
-    const lenis = new Lenis({
-        duration: 1.0,
-        easing: (t) => 1 - Math.pow(1 - t, 3),
-        lerp: 0.12,
-        wheelMultiplier: 1,
-        touchMultiplier: 1.5,
-        smooth: true,
-    });
-
-    function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-}
+export const BRAND = 'MDetailing';
 
 createInertiaApp({
-    title: (title) => title ? `${title} - MDetailing Premium Car Care` : 'MDetailing Premium Car Care',
+    // Public pages get their full title from the server (App\Support\Seo); admin pages pass a short one.
+    title: (title) => (!title ? 'MDetailing Premium Car Care' : title.includes(BRAND) ? title : `${title} | ${BRAND}`),
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
+        // Hydrate when the page was server-rendered (optional SSR, see resources/js/ssr.js).
+        const create = el.hasChildNodes() ? createSSRApp : createApp;
+        const app = create({ render: () => h(App, props) })
             .use(plugin)
-            .mount(el);
+            .directive('reveal', reveal);
+        app.mount(el);
+        restoreSavedLocale(props.initialPage.props.locale);
+        return app;
     },
     progress: {
-        color: '#C9A84C',
+        color: '#ffc629',
+        delay: 150,
     },
 });
 
-// Init AOS after DOM is ready
-setTimeout(() => {
-    AOS.init({
-        duration: 600,
-        easing: 'ease-out',
-        once: true,
-        offset: 50,
-    });
-}, 150);
-
-router.on('navigate', () => {
-    setTimeout(() => AOS.refresh(), 150);
-});
+startSmoothScroll();

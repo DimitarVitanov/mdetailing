@@ -1,11 +1,24 @@
 @import 'tailwindcss';
+@import './fonts.css';
 
 @source '../**/*.vue';
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Unbounded', 'Onest', ui-sans-serif, system-ui, sans-serif;
+
+    /* Site palette: studio black, chrome, and the yellow of the logo and the studio floor. */
+    --color-ink: #07080a;
+    --color-ink-2: #0c0e11;
+    --color-ink-3: #13161a;
+    --color-ink-4: #1b1f24;
+    --color-signal: #ffc629;
+    --color-signal-soft: #ffd966;
+    --color-signal-deep: #d9a300;
+    --color-chrome: #d7dce2;
+
+    /* Original palette, still used by the admin panel. */
     --color-gold: #C9A84C;
     --color-gold-light: #E2C96D;
     --color-gold-dark: #A68A32;
@@ -18,99 +31,289 @@
     --color-gray-medium: #2C2C2C;
     --color-gray-light: #999999;
     --color-cream: #F5F0E8;
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 @layer base {
     html {
-        scroll-behavior: smooth;
+        background-color: var(--color-ink);
+        color-scheme: dark;
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
     }
     body {
-        background-color: var(--color-dark);
-        color: #FFFFFF;
-        overflow-x: hidden;
+        background-color: var(--color-ink);
+        color: #fff;
+        font-family: var(--font-sans);
+        text-rendering: optimizeLegibility;
+        overflow-x: clip;
     }
     ::selection {
-        background-color: var(--color-gold);
-        color: var(--color-dark);
+        background-color: var(--color-signal);
+        color: var(--color-ink);
+    }
+    :focus-visible {
+        outline: 2px solid var(--color-signal);
+        outline-offset: 3px;
+        border-radius: 4px;
+    }
+    h1, h2, h3 {
+        text-wrap: balance;
+    }
+    p {
+        text-wrap: pretty;
+    }
+    img {
+        color: transparent; /* no broken-image alt text flashing on dark cards */
     }
 }
 
-@layer utilities {
-    .text-gradient-gold {
-        background: linear-gradient(135deg, #E2C96D 0%, #C9A84C 40%, #A68A32 100%);
+/* Lenis smooth scroll (desktop only, loaded after first paint by resources/js/lib/motion.js). */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+
+@layer components {
+    .container-x {
+        width: 100%;
+        max-width: 84rem;
+        margin-inline: auto;
+        padding-inline: 1.25rem;
+    }
+    @media (min-width: 640px) {
+        .container-x { padding-inline: 2rem; }
+    }
+    @media (min-width: 1280px) {
+        .container-x { padding-inline: 3rem; }
+    }
+
+    .display {
+        overflow-wrap: break-word; /* a long word never pushes the page sideways on a phone */
+        font-family: var(--font-display);
+        font-weight: 600;
+        letter-spacing: -0.035em;
+        line-height: 1.04;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--color-signal);
+    }
+    .eyebrow::before {
+        content: '';
+        width: 1.75rem;
+        height: 1px;
+        background: currentColor;
+        box-shadow: 0 0 10px currentColor;
+    }
+
+    /* Polished-metal headline text. */
+    .chrome {
+        background: linear-gradient(180deg, #ffffff 0%, #eef1f4 38%, #a9b1ba 100%);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
-    }
-    .text-gradient-white {
-        background: linear-gradient(180deg, #FFFFFF 0%, #CCCCCC 100%);
-        -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        background-clip: text;
     }
-    .bg-noise {
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    .signal-text {
+        color: var(--color-signal);
     }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.625rem;
+        min-height: 3rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        line-height: 1.2;
+        white-space: nowrap;
+        transition: background-color 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.35s, transform 0.25s var(--ease-out-expo);
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-signal {
+        background: var(--color-signal);
+        color: var(--color-ink);
+        box-shadow: 0 0 0 0 rgb(255 198 41 / 0);
+    }
+    .btn-signal:hover {
+        background: var(--color-signal-soft);
+        box-shadow: 0 10px 40px -8px rgb(255 198 41 / 0.55);
+    }
+    .btn-ghost {
+        background: rgb(255 255 255 / 0.07);
+        color: #fff;
+        border: 1px solid rgb(255 255 255 / 0.14);
+    }
+    .btn-ghost:hover {
+        background: rgb(255 255 255 / 0.12);
+        border-color: rgb(255 255 255 / 0.28);
+    }
+    .btn .btn-arrow { transition: transform 0.3s var(--ease-out-expo); }
+    .btn:hover .btn-arrow { transform: translateX(4px); }
+
+    /* A thin glowing tube, like the studio's LED lights. */
+    .led {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.75) 20%, rgb(255 255 255 / 0.75) 80%, transparent);
+        box-shadow: 0 0 12px rgb(255 255 255 / 0.35), 0 0 2px rgb(255 255 255 / 0.6);
+    }
+    .led-signal {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--color-signal) 15%, var(--color-signal) 85%, transparent);
+        box-shadow: 0 0 14px rgb(255 198 41 / 0.6);
+    }
+
+    /* Honeycomb outline from the studio ceiling, faded into the section colour (--hex-fade) towards
+       the edges. A gradient layer instead of mask-image keeps it a plain, cheap background paint. */
+    .hex-grid {
+        background-image:
+            radial-gradient(ellipse at center, transparent 0%, var(--hex-fade, var(--color-ink)) 72%),
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='41.57' height='72' viewBox='0 0 41.57 72'%3E%3Cpath d='M20.78 0L41.57 12V36L20.78 48L0 36V12Z M20.78 48V72' fill='none' stroke='%23ffffff' stroke-opacity='0.07' stroke-width='1'/%3E%3C/svg%3E");
+        background-size: 100% 100%, 41.57px 72px;
+    }
+    .hex-fade-2 { --hex-fade: var(--color-ink-2); }
+
+    /* Soft yellow light from above, as a gradient (a blurred element costs far more to paint). */
+    .glow {
+        background: radial-gradient(ellipse at center, rgb(255 198 41 / 0.13) 0%, rgb(255 198 41 / 0.04) 40%, transparent 70%);
+    }
+
     .glass {
-        background: rgba(17, 17, 17, 0.6);
-        backdrop-filter: blur(20px) saturate(1.2);
-        border: none;
+        background: rgb(16 18 22 / 0.86);
+        border: 1px solid rgb(255 255 255 / 0.09);
     }
-    .glass-gold {
-        background: rgba(201, 168, 76, 0.08);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(201, 168, 76, 0.15);
+
+    .card {
+        background: linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.01));
+        border: 1px solid rgb(255 255 255 / 0.07);
+        border-radius: 1.5rem;
     }
-    .shine {
-        position: relative;
-        overflow: hidden;
+
+    /* Inputs on the booking form. */
+    .field {
+        width: 100%;
+        min-height: 3.25rem;
+        padding: 0.875rem 1rem;
+        border-radius: 0.875rem;
+        background: rgb(255 255 255 / 0.04);
+        border: 1px solid rgb(255 255 255 / 0.1);
+        color: #fff;
+        font-size: 1rem; /* 16px keeps iOS from zooming into the field */
+        transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
     }
-    .shine::after {
+    .field::placeholder { color: rgb(255 255 255 / 0.35); }
+    .field:hover { border-color: rgb(255 255 255 / 0.2); }
+    .field:focus {
+        outline: none;
+        border-color: var(--color-signal);
+        background: rgb(255 255 255 / 0.06);
+        box-shadow: 0 0 0 4px rgb(255 198 41 / 0.12);
+    }
+    .field[aria-invalid='true'] { border-color: rgb(248 113 113 / 0.8); }
+    select.field {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.6' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.1rem;
+        padding-right: 2.75rem;
+    }
+    select.field option { background: var(--color-ink-3); color: #fff; }
+    input[type='date'].field::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; }
+
+    /* Service descriptions are HTML written in the admin. */
+    .rich-text { color: rgb(255 255 255 / 0.72); line-height: 1.75; font-size: 1.0625rem; }
+    .rich-text > * + * { margin-top: 1.1em; }
+    .rich-text h2, .rich-text h3 { color: #fff; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin-top: 1.8em; }
+    .rich-text h2 { font-size: 1.5rem; }
+    .rich-text h3 { font-size: 1.2rem; }
+    .rich-text strong { color: #fff; font-weight: 600; }
+    .rich-text a { color: var(--color-signal); text-decoration: underline; text-underline-offset: 3px; }
+    .rich-text ul, .rich-text ol { display: grid; gap: 0.6em; padding-left: 0; list-style: none; }
+    .rich-text li { position: relative; padding-left: 1.75em; }
+    .rich-text ul > li::before {
         content: '';
         position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(
-            to right,
-            transparent 0%,
-            rgba(255,255,255,0.03) 45%,
-            rgba(255,255,255,0.08) 50%,
-            rgba(255,255,255,0.03) 55%,
-            transparent 100%
-        );
-        transform: rotate(25deg);
-        animation: shine 6s ease-in-out infinite;
+        left: 0.15em;
+        top: 0.62em;
+        width: 0.6em;
+        height: 0.6em;
+        background: var(--color-signal);
+        clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
     }
-    @keyframes shine {
-        0%, 100% { transform: translateX(-100%) rotate(25deg); }
-        50% { transform: translateX(100%) rotate(25deg); }
+    .rich-text ol { counter-reset: item; }
+    .rich-text ol > li::before {
+        counter-increment: item;
+        content: counter(item, decimal-leading-zero);
+        position: absolute;
+        left: 0;
+        color: var(--color-signal);
+        font-weight: 600;
+        font-size: 0.85em;
     }
-    .float {
-        animation: float 8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
-        will-change: transform;
+
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+}
+
+/* ── Scroll reveal (v-reveal, resources/js/directives/reveal.js) ─────────────────────────────
+   Only elements below the fold are hidden, so the first screen is never held back. */
+[data-reveal] {
+    transition: opacity 0.9s var(--ease-out-expo), transform 0.9s var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+[data-reveal='up'] { opacity: 0; transform: translate3d(0, 28px, 0); }
+[data-reveal='fade'] { opacity: 0; }
+[data-reveal='scale'] { opacity: 0; transform: scale(0.96); }
+[data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+}
+
+/* First-screen entrance (CSS only, starts with the first paint). .rise fades in; .slide only moves,
+   for the headline and intro text: they stay visible from the first frame, so Chrome can count them
+   as the Largest Contentful Paint (it ignores anything first painted at opacity 0). */
+@keyframes rise {
+    from { opacity: 0; transform: translate3d(0, 22px, 0); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes slide {
+    from { transform: translate3d(0, 18px, 0); }
+    to { transform: none; }
+}
+.rise { animation: rise 0.9s var(--ease-out-expo) both; animation-delay: var(--d, 0ms); }
+.slide { animation: slide 0.9s var(--ease-out-expo) both; animation-delay: var(--d, 0ms); }
+
+@keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+}
+.marquee { animation: marquee 40s linear infinite; }
+
+@keyframes led-pulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+.led-pulse { animation: led-pulse 3.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-    .parallax-slow {
-        will-change: transform;
-    }
-    .img-reveal {
-        clip-path: inset(100% 0 0 0);
-        transition: clip-path 1.2s cubic-bezier(0.77, 0, 0.175, 1);
-    }
-    .img-reveal.revealed {
-        clip-path: inset(0 0 0 0);
-    }
-    .line-draw {
-        stroke-dasharray: 1000;
-        stroke-dashoffset: 1000;
-    }
-    .line-draw.drawn {
-        stroke-dashoffset: 0;
-        transition: stroke-dashoffset 2s cubic-bezier(0.77, 0, 0.175, 1);
-    }
+    [data-reveal] { opacity: 1 !important; transform: none !important; }
 }

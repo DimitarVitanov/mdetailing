@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -18,11 +20,21 @@ Route::get('/services/{service:slug}', [PageController::class, 'serviceShow'])->
 Route::get('/portfolio', [PageController::class, 'portfolio'])->name('portfolio');
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
-Route::post('/booking', [PageController::class, 'bookingStore'])->name('booking.store');
+Route::post('/booking', [PageController::class, 'bookingStore'])->middleware('throttle:6,1')->name('booking.store');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+
+// Resized WebP copies of admin uploads; only reached the first time (then served from public/media).
+Route::get('/media/{width}/{path}', MediaController::class)
+    ->whereNumber('width')
+    ->where('path', '[A-Za-z0-9/_.\-]+\.webp')
+    ->withoutMiddleware('web')
+    ->name('media');
 
 // Auth
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin Panel
@@ -57,8 +69,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 
     Route::get('/content', [ContentController::class, 'index'])->name('content.index');
     Route::get('/content/{content}/edit', [ContentController::class, 'edit'])->name('content.edit');
-    Route::post('/content/{content}', [ContentController::class, 'update'])->name('content.update');
+    // bulk-update before {content}, or "bulk-update" would be taken as a content id (404).
     Route::post('/content/bulk-update', [ContentController::class, 'bulkUpdate'])->name('content.bulk-update');
+    Route::post('/content/{content}', [ContentController::class, 'update'])->name('content.update');
 
     Route::get('/change-password', [PasswordController::class, 'edit'])->name('change-password');
     Route::post('/change-password', [PasswordController::class, 'update'])->name('change-password.update');

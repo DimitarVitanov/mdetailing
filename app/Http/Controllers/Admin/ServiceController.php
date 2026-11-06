@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Support\Slug;
 use Inertia\Inertia;
 
 class ServiceController extends Controller
@@ -35,19 +35,21 @@ class ServiceController extends Controller
             'price_to' => 'nullable|numeric|min:0',
             'duration' => 'nullable|string|max:100',
             'icon' => 'nullable|string|max:100',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:10240',
             'sort_order' => 'nullable|integer',
             'is_featured' => 'nullable',
             'is_active' => 'nullable',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        $validated['slug'] = Slug::unique(Service::class, $validated['name']);
         $validated['is_featured'] = filter_var($request->input('is_featured'), FILTER_VALIDATE_BOOLEAN);
         $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('services', 'public');
         }
+
+        $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
 
         Service::create($validated);
 
@@ -74,19 +76,27 @@ class ServiceController extends Controller
             'price_to' => 'nullable|numeric|min:0',
             'duration' => 'nullable|string|max:100',
             'icon' => 'nullable|string|max:100',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:10240',
             'sort_order' => 'nullable|integer',
             'is_featured' => 'nullable',
             'is_active' => 'nullable',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
+        // The page address only changes when the name does, so saving prices etc. keeps old links working.
+        if ($validated['name'] !== $service->name) {
+            $validated['slug'] = Slug::unique(Service::class, $validated['name'], $service->id);
+        }
         $validated['is_featured'] = filter_var($request->input('is_featured'), FILTER_VALIDATE_BOOLEAN);
         $validated['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
 
+        // No new file chosen means "keep the current photo", not "remove it".
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('services', 'public');
+        } else {
+            unset($validated['image']);
         }
+
+        $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
 
         $service->update($validated);
 

@@ -3,8 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Models\SiteContent;
+use App\Support\Seo;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -51,16 +51,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
-            'siteContent' => fn () => Cache::remember('site_content', 3600, function () {
-                return SiteContent::orderBy('sort_order')
-                    ->get()
-                    ->keyBy('key')
-                    ->map(fn ($item) => [
-                        'en' => $item->value_en,
-                        'mk' => $item->value_mk,
-                    ])
-                    ->toArray();
-            }),
+            'siteContent' => fn () => SiteContent::cached(),
+            'locale' => app()->getLocale(),
+            // Head tags for pages that don't set their own `seo` prop (admin and login are noindex).
+            'seo' => fn () => Seo::page(index: ! $request->is('admin', 'admin/*', 'login')),
         ];
     }
 }

@@ -7,7 +7,10 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/js/app.js', 'resources/css/app.css'],
+            // app.css is imported by app.js, so it ships as one stylesheet.
+            input: ['resources/js/app.js'],
+            // Optional server-side rendering: `npm run build:ssr` (see resources/js/ssr.js).
+            ssr: 'resources/js/ssr.js',
             refresh: true,
         }),
         vue({

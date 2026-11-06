@@ -1,6 +1,8 @@
-import { reactive, computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { computed, reactive } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 
+// Interface texts. Texts the client edits in the admin (Content) come from the `siteContent`
+// prop through c(), which falls back to these when a key isn't in the database yet.
 const translations = {
     en: {
         nav: {
@@ -308,53 +310,164 @@ const translations = {
     },
 };
 
-const state = reactive({
-    locale: localStorage.getItem('locale') || 'mk',
-});
+// Texts added with the redesign (merged into the ones above).
+const additions = {
+    en: {
+        nav: { menu: 'Menu', close: 'Close menu', call: 'Call', skip: 'Skip to content', language: 'MK — Македонски' },
+        hero: { scroll: 'Scroll' },
+        services: { details: 'Details' },
+        process: {
+            label: 'Our Process',
+            title: 'Four steps to',
+            titleAccent: 'a flawless finish',
+            step1: { title: 'Inspection', description: 'We inspect the paint, interior and every surface under studio light and agree on the plan with you.' },
+            step2: { title: 'Deep Clean', description: 'Hand wash, decontamination and a deep clean of the interior, wheels and every hidden corner.' },
+            step3: { title: 'Correction', description: 'Machine polishing removes swirls and light scratches and brings back depth and gloss.' },
+            step4: { title: 'Protection', description: 'Ceramic coating or sealant locks in the result and makes every wash easier.' },
+        },
+        portfolio: { open: 'View project' },
+        testimonials: { prev: 'Previous review', next: 'Next review' },
+        cta: { call: 'Call us' },
+        footer: { hours: 'Opening Hours', directions: 'Get directions', follow: 'Follow us', home: 'Home' },
+        portfolioPage: { close: 'Close', prev: 'Previous photo', next: 'Next photo', compare: 'Drag to compare' },
+        contactPage: {
+            vehicleYear: 'Year',
+            details: 'Your details',
+            vehicle: 'Vehicle',
+            appointment: 'Appointment',
+            required: 'Required',
+            responseNote: 'We reply within 24 hours to confirm your appointment.',
+            successTitle: 'Request received',
+            sendAnother: 'Send another request',
+            mapLoad: 'Show map',
+            mapOpen: 'Open in Google Maps',
+            callNow: 'Call now',
+            follow: 'Follow us',
+        },
+        serviceDetailPage: { price: 'Price', duration: 'Duration', related: 'Other services', gallery: 'From our studio', priceNote: 'The final price depends on the size and condition of the vehicle.' },
+        toast: { close: 'Close' },
+    },
+    mk: {
+        nav: { menu: 'Мени', close: 'Затвори мени', call: 'Јави се', skip: 'Прескокни до содржината', language: 'EN — English' },
+        hero: { scroll: 'Скролај' },
+        services: { details: 'Детали' },
+        process: {
+            label: 'Процес',
+            title: 'Четири чекори до',
+            titleAccent: 'совршен сјај',
+            step1: { title: 'Преглед', description: 'Ја прегледуваме бојата, ентериерот и секоја површина под студиско светло и заедно го договараме планот.' },
+            step2: { title: 'Длабинско чистење', description: 'Рачно миење, деконтаминација и длабинско чистење на ентериерот, тркалата и секое скриено место.' },
+            step3: { title: 'Корекција', description: 'Машинското полирање ги отстранува swirl трагите и ситните гребнатини и ги враќа длабочината и сјајот.' },
+            step4: { title: 'Заштита', description: 'Керамичката заштита или силантот го чуваат резултатот и го олеснуваат секое следно миење.' },
+        },
+        portfolio: { open: 'Погледни' },
+        testimonials: { prev: 'Претходна рецензија', next: 'Следна рецензија' },
+        cta: { call: 'Јавете се' },
+        footer: { hours: 'Работно Време', directions: 'Насоки до нас', follow: 'Следете нè', home: 'Почетна' },
+        portfolioPage: { close: 'Затвори', prev: 'Претходна фотографија', next: 'Следна фотографија', compare: 'Повлечете за споредба' },
+        contactPage: {
+            vehicleYear: 'Година',
+            details: 'Ваши податоци',
+            vehicle: 'Возило',
+            appointment: 'Термин',
+            required: 'Задолжително',
+            responseNote: 'Ќе ви одговориме во рок од 24 часа за да го потврдиме терминот.',
+            successTitle: 'Барањето е примено',
+            sendAnother: 'Испрати ново барање',
+            mapLoad: 'Прикажи мапа',
+            mapOpen: 'Отвори во Google Maps',
+            callNow: 'Јавете се сега',
+            follow: 'Следете нè',
+        },
+        serviceDetailPage: { price: 'Цена', duration: 'Времетраење', related: 'Други услуги', gallery: 'Од нашето студио', priceNote: 'Конечната цена зависи од големината и состојбата на возилото.' },
+        toast: { close: 'Затвори' },
+    },
+};
+
+function merge(target, source) {
+    for (const [key, value] of Object.entries(source)) {
+        if (value && typeof value === 'object' && !Array.isArray(value) && target[key] && typeof target[key] === 'object') merge(target[key], value);
+        else target[key] = value;
+    }
+    return target;
+}
+merge(translations, additions);
+
+export const LOCALES = ['mk', 'en'];
+
+// The server's `locale` prop (from the `locale` cookie) decides the language, so server-rendered
+// HTML, <html lang> and the page title all agree. This is only set in the browser, the moment
+// a visitor switches language, until the reload below brings the new prop.
+const client = reactive({ locale: null });
+
+export function setLocale(locale) {
+    if (!LOCALES.includes(locale) || typeof document === 'undefined') return;
+    client.locale = locale;
+    document.cookie = `locale=${locale}; path=/; max-age=31536000; samesite=lax`;
+    try {
+        localStorage.setItem('locale', locale);
+    } catch {}
+    document.documentElement.lang = locale;
+    // Title and description in the new language.
+    router.reload({ only: ['seo', 'locale'] });
+}
+
+// Visitors who picked a language before it was kept in a cookie (it used to live only in
+// localStorage) keep their choice.
+export function restoreSavedLocale(serverLocale) {
+    let saved = null;
+    try {
+        saved = localStorage.getItem('locale');
+    } catch {}
+    if (saved && LOCALES.includes(saved) && saved !== serverLocale && !document.cookie.includes('locale=')) {
+        setLocale(saved);
+    }
+}
+
+function lookup(locale, key) {
+    let value = translations[locale];
+    for (const part of key.split('.')) {
+        if (value === undefined || value === null) return undefined;
+        value = value[part];
+    }
+    return value;
+}
 
 export function useI18n() {
+    const page = usePage();
+    const locale = computed(() => client.locale || page.props.locale || 'mk');
+
+    // Interface text.
     function t(key) {
-        const keys = key.split('.');
-        let val = translations[state.locale];
-        for (const k of keys) {
-            if (val === undefined) return key;
-            val = val[k];
-        }
-        return val ?? key;
+        return lookup(locale.value, key) ?? key;
     }
 
-    function setLocale(loc) {
-        state.locale = loc;
-        localStorage.setItem('locale', loc);
-    }
-
-    function getLocale() {
-        return state.locale;
-    }
-
-    function toggleLocale() {
-        setLocale(state.locale === 'en' ? 'mk' : 'en');
+    // Editable text from the admin. A key left empty there stays empty (that's how the client
+    // hides e.g. the e-mail); a key that isn't in the database yet falls back to t().
+    function c(key, fallback = '') {
+        const item = page.props.siteContent?.[key];
+        if (item) return item[locale.value] || item.en || fallback;
+        const value = lookup(locale.value, key);
+        return typeof value === 'string' ? value : fallback;
     }
 
     function localized(obj, field) {
         if (!obj) return '';
-        if (state.locale === 'mk' && obj[field + '_mk']) return obj[field + '_mk'];
+        if (locale.value === 'mk' && obj[field + '_mk']) return obj[field + '_mk'];
         return obj[field] || '';
     }
 
-    function c(key, fallback = '') {
-        const page = usePage();
-        const sc = page.props.siteContent;
-        if (!sc || !sc[key]) return fallback || key;
-        const val = sc[key][state.locale] || sc[key]['en'];
-        if (val === '' || val === null || val === undefined) return fallback;
-        return val || fallback || key;
-    }
-
     function price(amount) {
-        if (!amount) return '';
-        return `€${amount}`;
+        const value = Number(amount);
+        if (!value) return '';
+        return `€${Number.isInteger(value) ? value : value.toFixed(2)}`;
     }
 
-    return { t, c, setLocale, getLocale, toggleLocale, localized, price, state };
+    const getLocale = () => locale.value;
+    const toggleLocale = () => setLocale(locale.value === 'en' ? 'mk' : 'en');
+
+    return { t, c, localized, price, locale, getLocale, setLocale, toggleLocale };
 }
+
+// "+389 75 657 005" → "tel:+38975657005"
+export const telHref = (phone) => (phone ? `tel:${phone.replace(/[^\d+]/g, '')}` : '');

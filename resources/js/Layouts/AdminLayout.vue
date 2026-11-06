@@ -69,6 +69,14 @@
                 </div>
             </transition>
 
+            <!-- Validation errors from any admin form (most forms don't show them next to the field) -->
+            <div v-if="Object.keys($page.props.errors || {}).length" class="mx-6 mt-4 bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-lg text-sm">
+                <p class="font-semibold mb-1">Not saved — please fix:</p>
+                <ul class="list-disc pl-5 space-y-0.5">
+                    <li v-for="(message, field) in $page.props.errors" :key="field">{{ message }}</li>
+                </ul>
+            </div>
+
             <!-- Page Content -->
             <main class="p-6">
                 <slot />

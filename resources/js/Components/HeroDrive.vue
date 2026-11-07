@@ -17,7 +17,7 @@ const WIDE = '(min-width: 1024px)';
 const GIVE_UP_MS = 8000;
 // Bumped whenever the videos are rendered again, so no browser keeps an old copy (the posters'
 // preload in PageController::home carries the same version).
-const V = '?v=3';
+const V = '?v=4';
 
 const video = ref(null);
 const state = ref('poster'); // poster → playing, or still

@@ -29,6 +29,7 @@ const SIGNAL = new THREE.Color(0xffc629);
 export const T = { brakeAt: 0.55, stop: 1.7, lightsOn: 1.8, sweepFrom: 2.1, sweepTo: 3.0, writeFrom: 2.7, writeTo: 3.5, end: 4.4 };
 const DIST = 50; // how far away the car starts (m)
 const START_X = -1.4; // a little left of the middle, seen from the camera
+const LOGO_Z = 1.56; // where the logo sits on the hood (towards the nose as it grows)
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
 const smooth = (t) => { t = clamp01(t); return t * t * (3 - 2 * t); };
@@ -312,7 +313,7 @@ window.setup = async (options) => {
     logo.colorSpace = THREE.SRGBColorSpace;
     logo.anisotropy = renderer.capabilities.getMaxAnisotropy();
     const badge = new THREE.Mesh(
-        new DecalGeometry(model.getObjectByName('body'), new THREE.Vector3(0, 1.0, 1.44), new THREE.Euler(-Math.PI / 2, 0, 0), new THREE.Vector3(0.9, 0.67, 0.6)),
+        new DecalGeometry(model.getObjectByName('body'), new THREE.Vector3(0, 1.0, LOGO_Z), new THREE.Euler(-Math.PI / 2, 0, 0), new THREE.Vector3(0.9, 0.67, 0.6)),
         badgeMaterial(logo),
     );
     badge.renderOrder = 3;
@@ -422,7 +423,7 @@ window.renderAt = (t) => {
 
     // the logo printed on the hood, nose first
     const w = clamp01((t - T.writeFrom) / (T.writeTo - T.writeFrom));
-    writeUniform.value = w <= 0 ? 10 : w >= 1 ? -10 : 1.82 - 0.8 * easeInOut(w);
+    writeUniform.value = w <= 0 ? 10 : w >= 1 ? -10 : LOGO_Z + 0.38 - 0.8 * easeInOut(w);
 
     // the camera: low and ahead while the car drives in, then round to the right and closer
     const look = new THREE.Vector3(car.position.x, cfg.L.y, car.position.z);

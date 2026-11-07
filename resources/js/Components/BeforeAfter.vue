@@ -17,21 +17,32 @@ const props = defineProps({
 const root = ref(null);
 let cancel = () => {};
 let trigger = null;
+let raf = null;
 let sweeping = true;
 let alive = true;
 
 const paint = (pos) => root.value?.style.setProperty('--pos', `${pos}%`);
+
+// The first sweep, in script (a transition on a custom property isn't reliable on every phone).
+function sweep(to, duration) {
+    const start = performance.now();
+    const ease = (t) => (t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2);
+    const step = (now) => {
+        const t = Math.min(1, (now - start) / duration);
+        paint(to * ease(t));
+        if (t < 1) raf = requestAnimationFrame(step);
+        else sweeping = false;
+    };
+    raf = requestAnimationFrame(step);
+}
 
 onMounted(() => {
     if (reducedMotion()) {
         paint(props.rest);
         return;
     }
-    // The first sweep is a CSS transition on --pos (registered in app.css), so it needs no script.
     cancel = whenReady(async () => {
-        root.value?.classList.add('is-sweeping');
-        requestAnimationFrame(() => paint(props.rest));
-        setTimeout(() => (sweeping = false), 2400);
+        setTimeout(() => sweep(props.rest, 2200), 250);
         const { ScrollTrigger } = await loadMotion();
         if (!alive) return;
         trigger = ScrollTrigger.create({
@@ -41,7 +52,6 @@ onMounted(() => {
             scrub: 0.6,
             onUpdate: (self) => {
                 if (sweeping) return;
-                root.value?.classList.remove('is-sweeping');
                 paint(props.rest + (100 - props.rest) * self.progress);
             },
         });
@@ -51,6 +61,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     alive = false;
     cancel();
+    if (raf) cancelAnimationFrame(raf);
     trigger?.kill();
 });
 </script>

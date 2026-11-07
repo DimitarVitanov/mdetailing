@@ -45,7 +45,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div ref="root" class="relative pl-10 sm:pl-0">
+    <!-- overflow-x-clip: steps waiting to slide in from the right would otherwise widen the page on phones -->
+    <div ref="root" class="relative pl-10 sm:pl-0 overflow-x-clip">
         <!-- the tube -->
         <div class="absolute top-0 bottom-0 left-3 sm:left-1/2 w-px bg-white/10"></div>
         <div ref="fill" class="absolute top-0 bottom-0 left-3 sm:left-1/2 w-px bg-led origin-top shadow-[0_0_14px_var(--color-led)]"></div>

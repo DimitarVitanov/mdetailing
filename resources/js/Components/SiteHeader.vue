@@ -101,7 +101,7 @@ onBeforeUnmount(() => {
         <div class="relative min-h-full flex flex-col px-6 pt-28 pb-10">
             <ul class="flex-1">
                 <li v-for="(item, i) in nav" :key="item.href" class="border-t border-white/[0.07] last:border-b">
-                    <Link :href="item.href" class="menu-item flex items-center gap-5 py-5 font-display text-[2rem] sm:text-5xl leading-none transition-[transform,opacity] duration-700 ease-[var(--ease-forge)]" :class="[open ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0', isActive(item.href) ? 'text-signal' : 'text-white']" :style="{ transitionDelay: open ? `${250 + i * 70}ms` : '0ms' }">
+                    <Link :href="item.href" class="menu-item flex items-center gap-4 py-5 font-display text-[clamp(1.4rem,7vw,3rem)] leading-none transition-[transform,opacity] duration-700 ease-[var(--ease-forge)]" :class="[open ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0', isActive(item.href) ? 'text-signal' : 'text-white']" :style="{ transitionDelay: open ? `${250 + i * 70}ms` : '0ms' }">
                         <span class="relative w-1.5 h-9 shrink-0 bg-white/10 overflow-hidden">
                             <span class="absolute inset-0 bg-led shadow-[0_0_12px_var(--color-led)] origin-bottom transition-transform duration-500 ease-[var(--ease-forge)]" :class="open ? 'scale-y-100' : 'scale-y-0'" :style="{ transitionDelay: open ? `${450 + i * 70}ms` : '0ms' }"></span>
                         </span>

@@ -314,7 +314,7 @@ const translations = {
 const additions = {
     en: {
         nav: { menu: 'Menu', close: 'Close menu', call: 'Call', skip: 'Skip to content', language: 'MK — Македонски' },
-        hero: { scroll: 'Scroll' },
+        hero: { scroll: 'Keep scrolling' },
         services: { details: 'Details' },
         process: {
             label: 'Our Process',
@@ -349,7 +349,7 @@ const additions = {
     },
     mk: {
         nav: { menu: 'Мени', close: 'Затвори мени', call: 'Јави се', skip: 'Прескокни до содржината', language: 'EN — English' },
-        hero: { scroll: 'Скролај' },
+        hero: { scroll: 'Скролајте' },
         services: { details: 'Детали' },
         process: {
             label: 'Процес',

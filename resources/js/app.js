@@ -2,6 +2,7 @@ import '../css/app.css';
 import { createApp, createSSRApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import PageWipe from './Components/PageWipe.vue';
 import { reveal } from './directives/reveal';
 import { restoreSavedLocale } from './i18n';
 import { startSmoothScroll } from './lib/motion';
@@ -15,17 +16,15 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         // Hydrate when the page was server-rendered (optional SSR, see resources/js/ssr.js).
         const create = el.hasChildNodes() ? createSSRApp : createApp;
-        const app = create({ render: () => h(App, props) })
+        // PageWipe sits beside the page, so it survives navigations and can cover them.
+        const app = create({ render: () => [h(App, props), h(PageWipe)] })
             .use(plugin)
             .directive('reveal', reveal);
         app.mount(el);
         restoreSavedLocale(props.initialPage.props.locale);
         return app;
     },
-    progress: {
-        color: '#ffc629',
-        delay: 150,
-    },
+    progress: false,
 });
 
 startSmoothScroll();

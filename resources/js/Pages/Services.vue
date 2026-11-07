@@ -1,41 +1,47 @@
 <template>
-    <PageHero :label="c('servicesPage.label')" :title="c('servicesPage.title')" :accent="c('servicesPage.titleAccent')"
-              :subtitle="c('servicesPage.subtitle')" image="audi-black-front-2"
-              :crumbs="[{ href: '/', label: t('footer.home') }, { href: '/services', label: t('nav.services') }]" />
+    <PageHero :eyebrow="c('servicesPage.label')" :lines="[c('servicesPage.title'), { text: c('servicesPage.titleAccent'), class: 'text-signal' }]" image="audi-black-front-2" :crumb="t('nav.services')">
+        {{ c('servicesPage.subtitle') }}
+    </PageHero>
 
-    <section class="relative pb-24 md:pb-32">
+    <section class="relative py-16 md:py-28">
         <div class="container-x">
-            <div class="flex flex-col gap-3 border-y border-white/[0.06] py-5 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between">
-                <p class="flex items-center gap-2"><Icon name="sparkles" :size="16" class="text-signal" /> {{ t('services.note') }}</p>
-                <p>{{ services.length }} {{ t('nav.services').toLowerCase() }}</p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-4 text-sm text-body">
+                <p v-reveal class="flex items-center gap-3"><Icon name="sparkles" :size="16" class="text-signal" /> {{ t('services.note') }}</p>
+                <p v-reveal:100 class="font-display text-[10px] tracking-[0.25em] text-steel">{{ String(services.length).padStart(2, '0') }} {{ t('nav.services') }}</p>
             </div>
+            <ServiceRail :services="services" />
+        </div>
+    </section>
 
-            <h2 class="sr-only">{{ c('servicesPage.titleAccent') }}</h2>
-            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                <div v-for="(service, i) in services" :key="service.id" v-reveal:[(i%3)*90]>
-                    <ServiceCard :service="service" :index="i" />
+    <section class="relative py-24 md:py-32 overflow-hidden border-t border-white/[0.06] bg-ink-2">
+        <div class="absolute inset-0 opacity-60"><Sparks :density="0.6" /></div>
+        <div class="relative container-x grid lg:grid-cols-[1.4fr_1fr] gap-10 items-end">
+            <MaskLines tag="h2" class="font-display text-4xl sm:text-6xl xl:text-7xl leading-[0.92]" :lines="[c('servicesPage.ctaTitle')]" />
+            <div v-reveal:150>
+                <p class="text-body text-lg leading-relaxed mb-8">{{ c('servicesPage.ctaText') }}</p>
+                <div class="flex flex-wrap gap-4">
+                    <Link href="/contact" class="btn-signal">{{ c('servicesPage.ctaButton') }}</Link>
+                    <a v-if="phone" :href="telHref(phone)" class="btn-ghost"><Icon name="phone" :size="15" /> {{ phone }}</a>
                 </div>
             </div>
         </div>
     </section>
-
-    <CtaBand :title="c('servicesPage.ctaTitle')" :text="c('servicesPage.ctaText')" :button="c('servicesPage.ctaButton')"
-             :phone="c('footer.phone')" image="red-audi-01" />
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
-import CtaBand from '@/Components/CtaBand.vue';
 import Icon from '@/Components/Icon.vue';
+import MaskLines from '@/Components/MaskLines.vue';
 import PageHero from '@/Components/PageHero.vue';
-import ServiceCard from '@/Components/ServiceCard.vue';
-import { useI18n } from '@/i18n.js';
+import ServiceRail from '@/Components/ServiceRail.vue';
+import Sparks from '@/Components/Sparks.vue';
+import { telHref, useI18n } from '@/i18n.js';
 
 defineOptions({ layout: MainLayout });
-
-defineProps({
-    services: { type: Array, default: () => [] },
-});
+defineProps({ services: { type: Array, default: () => [] } });
 
 const { t, c } = useI18n();
+const phone = computed(() => c('footer.phone'));
 </script>

@@ -1,43 +1,42 @@
-<template>
-    <section class="relative isolate overflow-hidden pb-14 pt-32 md:pb-20 md:pt-44">
-        <div class="absolute inset-0 -z-10">
-            <img v-if="image" v-bind="photo(image)" sizes="100vw" alt="" fetchpriority="high"
-                 class="h-full w-full object-cover opacity-35" />
-            <div class="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/80 to-ink"></div>
-            <div class="hex-grid absolute inset-x-0 top-0 h-[120%] opacity-80"></div>
-            <div class="glow absolute -top-48 left-1/2 h-[36rem] w-[64rem] max-w-[200%] -translate-x-1/2"></div>
-        </div>
-
-        <div class="container-x">
-            <nav v-if="crumbs?.length" aria-label="Breadcrumb" class="rise mb-8 flex flex-wrap items-center gap-2 text-xs text-white/50">
-                <template v-for="(crumb, i) in crumbs" :key="crumb.href">
-                    <Link :href="crumb.href" class="transition-colors hover:text-white">{{ crumb.label }}</Link>
-                    <Icon v-if="i < crumbs.length - 1" name="chevron-right" :size="12" />
-                </template>
-            </nav>
-
-            <span v-if="label" class="eyebrow rise">{{ label }}</span>
-            <h1 class="display slide mt-6 max-w-5xl text-[clamp(2.1rem,6vw,4.8rem)]">
-                <span class="chrome">{{ title }}</span>
-                <template v-if="accent">{{ ' ' }}<span class="signal-text">{{ accent }}</span></template>
-            </h1>
-            <p v-if="subtitle" class="slide mt-6 max-w-2xl text-base leading-relaxed text-white/65 md:text-lg" style="--d: 60ms">{{ subtitle }}</p>
-            <slot />
-        </div>
-    </section>
-</template>
-
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import Icon from '@/Components/Icon.vue';
+import MaskLines from '@/Components/MaskLines.vue';
+import Photo from '@/Components/Photo.vue';
+import Sparks from '@/Components/Sparks.vue';
+import { useI18n } from '@/i18n.js';
 import { photo } from '@/lib/img.js';
 
+// Opening section of the inner pages: a photo under a dark veil, breadcrumb, eyebrow and an
+// oversized title that rises line by line.
 defineProps({
-    label: String,
-    title: String,
-    accent: String,
-    subtitle: String,
-    image: String,
-    crumbs: Array,
+    eyebrow: { type: String, required: true },
+    lines: { type: Array, required: true },
+    image: { type: String, default: null },
+    position: { type: String, default: 'center' },
+    crumb: { type: String, default: null },
 });
+
+const { t } = useI18n();
 </script>
+
+<template>
+    <section class="relative min-h-[72svh] flex items-end overflow-hidden pt-32 pb-16 sm:pb-20 grain">
+        <Photo v-if="image" hero priority :image="photo(image)" alt="" sizes="100vw" reveal="none" :parallax="20" :position="position" class="absolute inset-0" img-class="opacity-60" />
+        <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/75 to-ink/30"></div>
+        <div class="absolute inset-0 opacity-60"><Sparks :density="0.5" /></div>
+
+        <div class="relative container-x">
+            <nav class="flex items-center gap-3 font-display text-[10px] tracking-[0.25em] text-steel mb-10" aria-label="Breadcrumb">
+                <Link href="/" class="hover:text-white transition-colors">{{ t('footer.home') }}</Link>
+                <span class="w-6 h-px bg-signal"></span>
+                <span class="text-white">{{ crumb || eyebrow }}</span>
+            </nav>
+            <p class="eyebrow mb-6">{{ eyebrow }}</p>
+            <MaskLines tag="h1" hero :delay="100" class="font-display text-[10.5vw] sm:text-7xl lg:text-8xl xl:text-[7.5rem] leading-[0.9] max-w-5xl" :lines="lines" />
+            <div v-if="$slots.default" class="mt-8 max-w-2xl text-body text-lg leading-relaxed">
+                <slot />
+            </div>
+        </div>
+        <div class="led absolute bottom-0 inset-x-0 opacity-50"></div>
+    </section>
+</template>

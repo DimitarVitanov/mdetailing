@@ -92,9 +92,13 @@ async function long(page, file, height) {
 
 // the drive video's frames, for under the hero layer
 const drive = path.join(out, 'drive');
+fs.rmSync(drive, { recursive: true, force: true });
 fs.mkdirSync(drive, { recursive: true });
 execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', path.join(here, '../../public/video/drive-wide.mp4'), '-q:v', '2', path.join(drive, '%04d.jpg')]);
-console.log(`  drive: ${fs.readdirSync(drive).length} frames`);
+const frames = fs.readdirSync(drive).length;
+const heroInfo = JSON.parse(fs.readFileSync(path.join(out, 'hero.json')));
+fs.writeFileSync(path.join(out, 'hero.json'), JSON.stringify({ ...heroInfo, frames, fps: 30 }, null, 2));
+console.log(`  drive: ${frames} frames`);
 
 // ── desktop services: the first screen ──
 {

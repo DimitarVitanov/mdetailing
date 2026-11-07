@@ -9,7 +9,6 @@
 //  11.8  wipe, end card: logo, tagline, button, address, "Изработено од nyxeon.io"
 export const DURATION = 15;
 
-const VIDEO_FPS = 30;
 const SCALE = 1280 / 1440; // the browser window shows the desktop site (1440 css px) 1280 px wide
 const PHONE = 300 / 390; // the phones show the mobile site (390 css px) 300 px wide
 
@@ -117,8 +116,9 @@ let driveFrame = -1;
 window.setup = async () => {
     buildHexes();
     hero = await (await fetch('/cap/hero.json')).json();
-    const top = hero.stage.y * SCALE;
-    Object.assign($('drive').style, { top: `${top}px`, height: `${hero.stage.height * SCALE}px` });
+    // the drive's frames go exactly where the site's stage is (it can be narrower than the page)
+    const st = hero.stage;
+    Object.assign($('drive').style, { left: `${st.x * SCALE}px`, top: `${st.y * SCALE}px`, width: `${st.width * SCALE}px`, height: `${st.height * SCALE}px` });
     await document.fonts.ready;
     await Promise.all([...document.images].map((img) => (img.complete ? img.decode().catch(() => {}) : new Promise((r) => { img.onload = img.onerror = r; }))));
     return { hexes: hexes.length };
@@ -171,8 +171,9 @@ window.renderAt = async (t) => {
         });
 
         // the hero: the drive video's frames under the page layer, then the page scrolls
-        const vt = lerp(0.5, 5.3, prog(t, 4.25, 3.2));
-        const frame = Math.min(159, Math.max(0, Math.round(vt * VIDEO_FPS)));
+        const last = hero.frames - 1;
+        const vt = lerp(0.3, last / hero.fps, prog(t, 4.25, 3.2));
+        const frame = Math.min(last, Math.max(0, Math.round(vt * hero.fps)));
         const onHero = t < 7.55;
         show($('heroLayer'), onHero);
         show($('homeLayer'), !onHero);

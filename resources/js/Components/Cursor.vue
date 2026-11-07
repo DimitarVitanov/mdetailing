@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { gsap, finePointer, reducedMotion } from '@/lib/motion';
+import { finePointer, reducedMotion } from '@/lib/motion';
 
 // A small hex that trails the pointer on desktop and opens up over links, buttons and anything
 // with data-cursor="Label". The system cursor stays visible.
@@ -8,7 +8,7 @@ const hex = ref(null);
 const label = ref('');
 const active = ref(false);
 const shown = ref(false);
-let tick = null;
+let raf = null;
 const pos = { x: -100, y: -100 };
 const target = { x: -100, y: -100 };
 
@@ -26,18 +26,19 @@ onMounted(() => {
     if (!finePointer() || reducedMotion()) return;
     window.addEventListener('pointermove', onMove, { passive: true });
     document.addEventListener('pointerleave', onLeave);
-    tick = () => {
+    const tick = () => {
         pos.x += (target.x - pos.x) * 0.22;
         pos.y += (target.y - pos.y) * 0.22;
         if (hex.value) hex.value.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+        raf = requestAnimationFrame(tick);
     };
-    gsap.ticker.add(tick);
+    raf = requestAnimationFrame(tick);
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerleave', onLeave);
-    if (tick) gsap.ticker.remove(tick);
+    if (raf) cancelAnimationFrame(raf);
 });
 </script>
 

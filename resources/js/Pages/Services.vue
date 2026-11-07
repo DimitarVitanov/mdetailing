@@ -36,7 +36,7 @@ import Icon from '@/Components/Icon.vue';
 import MaskLines from '@/Components/MaskLines.vue';
 import PageHero from '@/Components/PageHero.vue';
 import ServiceRail from '@/Components/ServiceRail.vue';
-import Sparks from '@/Components/Sparks.vue';
+import Sparks from '@/Components/SparksLazy.js';
 import { telHref, useI18n } from '@/i18n.js';
 
 defineOptions({ layout: MainLayout });

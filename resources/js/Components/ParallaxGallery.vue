@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { gsap, reducedMotion } from '@/lib/motion';
+import { loadMotion, reducedMotion } from '@/lib/motion';
 import Photo from '@/Components/Photo.vue';
 
 // Three columns of photos that scroll at different speeds (the middle one runs against the
@@ -13,11 +13,14 @@ const props = defineProps({
 const emit = defineEmits(['open']);
 const root = ref(null);
 let mm = null;
+let alive = true;
 
 const columns = [0, 1, 2].map((c) => props.items.map((item, i) => ({ item, i })).filter(({ i }) => i % 3 === c));
 
-onMounted(() => {
+onMounted(async () => {
     if (reducedMotion()) return;
+    const { gsap } = await loadMotion();
+    if (!alive) return;
     mm = gsap.matchMedia();
     mm.add('(min-width: 768px)', () => {
         root.value.querySelectorAll('.pg-col').forEach((col, i) => {
@@ -30,7 +33,7 @@ onMounted(() => {
     });
 });
 
-onBeforeUnmount(() => mm?.revert());
+onBeforeUnmount(() => { alive = false; mm?.revert(); });
 </script>
 
 <template>

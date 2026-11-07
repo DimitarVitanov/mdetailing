@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, useAttrs } from 'vue';
-import { gsap, reducedMotion, ScrollTrigger } from '@/lib/motion';
+import { loadMotion, reducedMotion } from '@/lib/motion';
 import { observeReveal, unobserveReveal } from '@/directives/reveal';
 import { afterFirstPaint } from '@/lib/img';
 import { whenReady } from '@/lib/intro';
@@ -30,23 +30,27 @@ const frame = ref(null);
 const img = ref(null);
 let trigger = null;
 let cancel = () => {};
+let alive = true;
 
 // Photos that aren't needed for the first paint ask for their file once the page has painted.
 const load = ref(props.priority);
 
-onMounted(() => {
+onMounted(async () => {
     if (!load.value) afterFirstPaint(() => (load.value = true));
     if (props.reveal === 'none') frame.value.classList.add('is-revealed');
     else if (props.hero) cancel = whenReady(() => setTimeout(() => frame.value?.classList.add('is-revealed'), props.delay));
     else observeReveal(frame.value);
 
     if (props.parallax && !reducedMotion()) {
+        const { gsap, ScrollTrigger } = await loadMotion();
+        if (!alive) return;
         const tween = gsap.fromTo(img.value, { yPercent: -props.parallax / 2 }, { yPercent: props.parallax / 2, ease: 'none' });
         trigger = ScrollTrigger.create({ trigger: frame.value, start: 'top bottom', end: 'bottom top', scrub: true, animation: tween });
     }
 });
 
 onBeforeUnmount(() => {
+    alive = false;
     cancel();
     unobserveReveal(frame.value);
     trigger?.animation?.kill();

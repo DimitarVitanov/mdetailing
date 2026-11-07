@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { gsap, reducedMotion, ScrollTrigger } from '@/lib/motion';
+import { loadMotion, reducedMotion } from '@/lib/motion';
 import { whenReady } from '@/lib/intro';
 
 // A full-bleed photo that wipes from "before" (dull, grey) to "after" (glossy) behind a
@@ -15,40 +15,42 @@ const props = defineProps({
 });
 
 const root = ref(null);
-const state = { pos: 0 };
 let cancel = () => {};
 let trigger = null;
-let intro = null;
+let sweeping = true;
+let alive = true;
 
-function paint() {
-    root.value?.style.setProperty('--pos', `${state.pos}%`);
-}
+const paint = (pos) => root.value?.style.setProperty('--pos', `${pos}%`);
 
 onMounted(() => {
     if (reducedMotion()) {
-        state.pos = props.rest;
-        paint();
+        paint(props.rest);
         return;
     }
-    cancel = whenReady(() => {
-        intro = gsap.to(state, { pos: props.rest, duration: 2.2, ease: 'expo.inOut', onUpdate: paint, delay: 0.3 });
+    // The first sweep is a CSS transition on --pos (registered in app.css), so it needs no script.
+    cancel = whenReady(async () => {
+        root.value?.classList.add('is-sweeping');
+        requestAnimationFrame(() => paint(props.rest));
+        setTimeout(() => (sweeping = false), 2400);
+        const { ScrollTrigger } = await loadMotion();
+        if (!alive) return;
         trigger = ScrollTrigger.create({
             trigger: root.value,
             start: 'top top',
             end: 'bottom top',
             scrub: 0.6,
             onUpdate: (self) => {
-                if (intro?.isActive()) return;
-                state.pos = props.rest + (100 - props.rest) * self.progress;
-                paint();
+                if (sweeping) return;
+                root.value?.classList.remove('is-sweeping');
+                paint(props.rest + (100 - props.rest) * self.progress);
             },
         });
     });
 });
 
 onBeforeUnmount(() => {
+    alive = false;
     cancel();
-    intro?.kill();
     trigger?.kill();
 });
 </script>

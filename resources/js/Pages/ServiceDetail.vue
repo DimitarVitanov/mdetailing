@@ -97,7 +97,7 @@ import MaskLines from '@/Components/MaskLines.vue';
 import ParallaxGallery from '@/Components/ParallaxGallery.vue';
 import Photo from '@/Components/Photo.vue';
 import ServiceRail from '@/Components/ServiceRail.vue';
-import Sparks from '@/Components/Sparks.vue';
+import Sparks from '@/Components/SparksLazy.js';
 import { telHref, useI18n } from '@/i18n.js';
 import { imageFor, portfolioPhoto, servicePhoto } from '@/lib/img.js';
 import { whenReady } from '@/lib/intro';

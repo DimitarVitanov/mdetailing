@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { gsap, reducedMotion } from '@/lib/motion';
+import { loadMotion, reducedMotion } from '@/lib/motion';
 
 // The process as a vertical LED line that lights up as you scroll through the steps; each
 // step's hex node switches on when the light reaches it.
@@ -10,13 +10,16 @@ defineProps({ steps: { type: Array, required: true } });
 const root = ref(null);
 const fill = ref(null);
 let tween = null;
+let alive = true;
 
-onMounted(() => {
+onMounted(async () => {
     if (reducedMotion()) {
         fill.value.style.transform = 'scaleY(1)';
         root.value.querySelectorAll('.node').forEach((n) => n.classList.add('is-lit'));
         return;
     }
+    const { gsap } = await loadMotion();
+    if (!alive) return;
     const nodes = [...root.value.querySelectorAll('.node')];
     tween = gsap.fromTo(fill.value, { scaleY: 0 }, {
         scaleY: 1,
@@ -35,6 +38,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+    alive = false;
     tween?.scrollTrigger?.kill();
     tween?.kill();
 });

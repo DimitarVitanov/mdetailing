@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { reducedMotion } from '@/lib/motion';
+import { finePointer, reducedMotion } from '@/lib/motion';
 import { whenReady } from '@/lib/intro';
 
 // Light motes drifting up through the studio: a light 2D canvas, paused when off screen or in
@@ -86,7 +86,7 @@ function wake() {
 }
 
 onMounted(() => {
-    if (reducedMotion()) return;
+    if (reducedMotion() || !finePointer()) return;
     ctx = canvas.value.getContext('2d');
     resize();
     ro = new ResizeObserver(resize);

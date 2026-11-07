@@ -164,7 +164,7 @@ import Photo from '@/Components/Photo.vue';
 import ProcessLine from '@/Components/ProcessLine.vue';
 import ScrubWords from '@/Components/ScrubWords.vue';
 import ServiceRail from '@/Components/ServiceRail.vue';
-import Sparks from '@/Components/Sparks.vue';
+import Sparks from '@/Components/SparksLazy.js';
 import VelocityMarquee from '@/Components/VelocityMarquee.vue';
 import { useI18n } from '@/i18n.js';
 import { imageFor, photo, portfolioPhoto } from '@/lib/img.js';

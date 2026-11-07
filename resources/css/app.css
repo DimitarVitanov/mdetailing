@@ -305,6 +305,14 @@
 
 /* ---------- Motion ---------- */
 
+/* BeforeAfter: the first sweep of the LED edge is a transition on a registered custom property. */
+@property --pos {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+}
+.is-sweeping { transition: --pos 2.2s var(--ease-in-out-quart); }
+
 /* v-reveal (directives/reveal.js): elements wait hidden until they scroll into view. */
 [data-reveal] {
     transition-property: opacity, transform, clip-path;

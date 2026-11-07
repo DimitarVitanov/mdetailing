@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { gsap, reducedMotion } from '@/lib/motion';
+import { loadMotion, reducedMotion } from '@/lib/motion';
 
 // A statement whose words light up one by one as you scroll through it.
 const props = defineProps({
@@ -14,9 +14,12 @@ const el = ref(null);
 const words = computed(() => props.text.split(/\s+/).filter(Boolean));
 const marked = (word) => props.highlight.includes(word.replace(/[^\p{L}'’-]/gu, '').toLowerCase());
 let tween = null;
+let alive = true;
 
-onMounted(() => {
+onMounted(async () => {
     if (reducedMotion()) return;
+    const { gsap } = await loadMotion();
+    if (!alive) return;
     tween = gsap.fromTo(
         el.value.querySelectorAll('.scrub-word'),
         { opacity: 0.14 },
@@ -25,6 +28,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+    alive = false;
     tween?.scrollTrigger?.kill();
     tween?.kill();
 });

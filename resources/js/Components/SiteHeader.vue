@@ -20,11 +20,17 @@ const nav = [
 const path = computed(() => (page.url || '/').split(/[?#]/)[0]);
 const isActive = (href) => (href === '/' ? path.value === '/' : path.value.startsWith(href));
 
+const hours = computed(() =>
+    [
+        { label: t('contactPage.monFri'), value: c('contactPage.hours.monFri') },
+        { label: t('contactPage.saturday'), value: c('contactPage.hours.saturday') },
+    ].filter((r) => r.value),
+);
+
 // Hides while scrolling down, comes back on the way up; solid once off the hero. Written as
 // data attributes so the header doesn't re-render on every scroll frame.
 const bar = ref(null);
 const open = ref(false);
-const origin = ref('100% 0%');
 let hidden = false;
 let lastY = 0;
 
@@ -36,12 +42,6 @@ function onScroll() {
     lastY = y;
     bar.value?.toggleAttribute('data-hidden', hidden);
     bar.value?.toggleAttribute('data-solid', y > 40 && !open.value);
-}
-
-function toggle(event) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    origin.value = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
-    open.value = !open.value;
 }
 
 watch(open, (value) => { lockScroll(value); onScroll(); });
@@ -81,33 +81,49 @@ onBeforeUnmount(() => {
                 </button>
                 <a v-if="phone" :href="telHref(phone)" class="hidden sm:grid h-10 w-10 place-items-center border border-white/15 hover:border-signal hover:text-signal transition-colors clip-cut-sm" :aria-label="t('nav.call')"><Icon name="phone" :size="16" /></a>
                 <Link href="/contact" class="hidden md:inline-flex btn-signal !px-6 !py-3 !text-[10px]">{{ t('nav.bookNow') }}</Link>
-                <button type="button" class="lg:hidden relative flex items-center gap-3 h-11 pl-3 pr-1 font-display text-[10px] tracking-[0.25em] text-white" :aria-expanded="open" aria-controls="mobile-menu" @click="toggle">
+                <!-- menu switch: a small LED that turns on -->
+                <button type="button" class="lg:hidden relative flex items-center gap-3 h-11 pl-3 font-display text-[10px] tracking-[0.25em] text-white" :aria-expanded="open" aria-controls="mobile-menu" @click="open = !open">
                     {{ open ? t('nav.close') : t('nav.menu') }}
-                    <span class="relative w-7 h-3">
-                        <span class="absolute left-0 right-0 h-0.5 bg-current transition-transform duration-500 ease-[var(--ease-forge)]" :class="open ? 'top-1/2 -translate-y-1/2 rotate-45' : 'top-0'"></span>
-                        <span class="absolute right-0 h-0.5 bg-signal transition-all duration-500 ease-[var(--ease-forge)]" :class="open ? 'top-1/2 -translate-y-1/2 -rotate-45 left-0 bg-current' : 'bottom-0 left-2.5'"></span>
+                    <span class="grid place-items-center w-9 h-9 clip-hex transition-colors duration-300" :class="open ? 'bg-led' : 'bg-white/10'">
+                        <span class="w-2 h-2 clip-hex transition-colors duration-300" :class="open ? 'bg-ink' : 'bg-led'"></span>
                     </span>
                 </button>
             </div>
         </nav>
     </header>
 
-    <!-- Mobile menu: a signal circle grows out of the button. -->
-    <div id="mobile-menu" class="lg:hidden fixed inset-0 z-[45] bg-signal text-ink transition-[clip-path] duration-700 ease-[var(--ease-forge)] overflow-y-auto" :style="{ clipPath: open ? `circle(150% at ${origin})` : `circle(0% at ${origin})` }" :inert="!open || undefined">
-        <div class="hex-grid-ink absolute inset-0 opacity-[0.08] pointer-events-none"></div>
+    <!-- Mobile menu: a shutter that rolls down from the top, items lit one after another. -->
+    <div id="mobile-menu" class="lg:hidden fixed inset-0 z-[45] bg-ink overflow-y-auto transition-transform duration-700 ease-[var(--ease-in-out-quart)]" :class="open ? 'translate-y-0' : '-translate-y-full'" :inert="!open || undefined">
+        <div class="absolute inset-0 pointer-events-none" style="background-image: repeating-linear-gradient(180deg, transparent 0 46px, rgb(255 255 255 / 0.04) 46px 48px);"></div>
+        <div class="hex-grid absolute inset-0 opacity-[0.05] pointer-events-none"></div>
+        <div class="led absolute bottom-0 inset-x-0 transition-opacity duration-500" :class="open ? 'opacity-100 delay-700' : 'opacity-0'"></div>
+
         <div class="relative min-h-full flex flex-col px-6 pt-28 pb-10">
-            <ul class="flex-1 space-y-1">
-                <li v-for="(item, i) in nav" :key="item.href" class="overflow-hidden">
-                    <Link :href="item.href" class="menu-item flex items-baseline gap-4 py-2 font-display text-[2.4rem] sm:text-6xl leading-none" :class="[open ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0', isActive(item.href) ? 'text-white' : 'text-ink']" :style="{ transitionDelay: open ? `${180 + i * 60}ms` : '0ms' }">
-                        <span class="font-display text-[10px] tracking-[0.3em] text-ink/60">{{ String(i + 1).padStart(2, '0') }}</span>
+            <ul class="flex-1">
+                <li v-for="(item, i) in nav" :key="item.href" class="border-t border-white/[0.07] last:border-b">
+                    <Link :href="item.href" class="menu-item flex items-center gap-5 py-5 font-display text-[2rem] sm:text-5xl leading-none transition-[transform,opacity] duration-700 ease-[var(--ease-forge)]" :class="[open ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0', isActive(item.href) ? 'text-signal' : 'text-white']" :style="{ transitionDelay: open ? `${250 + i * 70}ms` : '0ms' }">
+                        <span class="relative w-1.5 h-9 shrink-0 bg-white/10 overflow-hidden">
+                            <span class="absolute inset-0 bg-led shadow-[0_0_12px_var(--color-led)] origin-bottom transition-transform duration-500 ease-[var(--ease-forge)]" :class="open ? 'scale-y-100' : 'scale-y-0'" :style="{ transitionDelay: open ? `${450 + i * 70}ms` : '0ms' }"></span>
+                        </span>
+                        <span class="font-display text-[10px] tracking-[0.3em] text-steel w-6">{{ String(i + 1).padStart(2, '0') }}</span>
                         {{ t(item.label) }}
                     </Link>
                 </li>
             </ul>
-            <div class="mt-10 pt-6 border-t border-ink/20 space-y-4 transition-opacity duration-500" :class="open ? 'opacity-100 delay-500' : 'opacity-0'">
-                <Link href="/contact" class="btn-ghost btn-ghost-ink w-full !shadow-[inset_0_0_0_1px_rgb(7_8_10/0.6)] hover:!bg-ink hover:!text-signal">{{ t('nav.bookNow') }}</Link>
-                <a v-if="phone" :href="telHref(phone)" class="flex items-center gap-3 font-display text-sm text-ink"><Icon name="phone" :size="16" /> {{ phone }}</a>
-                <p v-if="c('footer.address')" class="text-sm text-ink/70">{{ c('footer.address') }}</p>
+
+            <div class="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 items-end transition-opacity duration-500" :class="open ? 'opacity-100 delay-700' : 'opacity-0'">
+                <div class="col-span-2">
+                    <Link href="/contact" class="btn-signal w-full">{{ t('nav.bookNow') }} <Icon name="arrow-right" :size="14" /></Link>
+                </div>
+                <div>
+                    <p class="s-label mb-2">{{ t('contactPage.phone') }}</p>
+                    <a v-if="phone" :href="telHref(phone)" class="font-display text-sm text-white">{{ phone }}</a>
+                </div>
+                <div>
+                    <p class="s-label mb-2">{{ t('contactPage.hours') }}</p>
+                    <p v-for="r in hours" :key="r.label" class="text-xs text-body">{{ r.label }}: <span class="text-white">{{ r.value }}</span></p>
+                </div>
+                <p v-if="c('footer.address')" class="col-span-2 text-xs text-steel flex items-center gap-2"><Icon name="map-pin" :size="13" class="text-led" /> {{ c('footer.address') }}</p>
             </div>
         </div>
     </div>
@@ -129,5 +145,4 @@ onBeforeUnmount(() => {
     transition: transform 0.5s var(--ease-forge);
 }
 .roll-link.is-active::after { transform: scaleX(1); transform-origin: left; }
-.menu-item { transition: transform 0.8s var(--ease-forge), opacity 0.5s ease, color 0.3s; }
 </style>

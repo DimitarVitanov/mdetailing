@@ -1,7 +1,7 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
-import { gsap, reducedMotion, ScrollTrigger } from '@/lib/motion';
+import { loadMotion, reducedMotion } from '@/lib/motion';
 import Icon from '@/Components/Icon.vue';
 import Photo from '@/Components/Photo.vue';
 import { useI18n } from '@/i18n.js';
@@ -16,9 +16,12 @@ const { t, localized, price } = useI18n();
 const root = ref(null);
 const active = ref(0);
 let mm = null;
+let alive = true;
 
-onMounted(() => {
+onMounted(async () => {
     if (reducedMotion()) return;
+    const { gsap, ScrollTrigger } = await loadMotion();
+    if (!alive) return;
     mm = gsap.matchMedia();
     mm.add('(min-width: 1024px)', () => {
         const triggers = [...root.value.querySelectorAll('.rail-item')].map((item, i) =>
@@ -28,7 +31,7 @@ onMounted(() => {
     });
 });
 
-onBeforeUnmount(() => mm?.revert());
+onBeforeUnmount(() => { alive = false; mm?.revert(); });
 </script>
 
 <template>

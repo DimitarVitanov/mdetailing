@@ -26,24 +26,66 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-    {{-- Self-hosted fonts (resources/css/fonts.css): fetch the ones this language needs before the CSS asks. --}}
-    <link rel="preload" href="/fonts/unbounded-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+    {{-- Self-hosted fonts (resources/css/fonts.css). Preloaded at low priority: they must not
+         compete with the stylesheet and the hero photo for bandwidth, and text paints with the
+         fallback font until they arrive (font-display: swap). Only the display face is preloaded;
+         the body face is fetched when the CSS asks for it. --}}
+    <link rel="preload" href="/fonts/unbounded-latin.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low">
     @if (app()->getLocale() === 'mk')
-    <link rel="preload" href="/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low">
     @endif
+    {{-- The logo: the header and the intro both show it before any script has run. --}}
+    <link rel="preload" as="image" href="/img/brand/logo-240.webp" fetchpriority="high">
     @if (! empty($preloadImage))
     {{-- The page's main photo, passed by its controller; widths match the <img> srcset. --}}
     <link rel="preload" as="image" imagesrcset="{{ collect($preloadImage['widths'])->map(fn ($w) => "{$preloadImage['base']}-{$w}.webp {$w}w")->implode(', ') }}" imagesizes="{{ $preloadImage['sizes'] }}" fetchpriority="high">
     @endif
 
     <style>html,body{background:#07080a;color:#fff}</style>
-    {{-- The page's own chunk too, so it downloads alongside app.js instead of after it. --}}
-    @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
+    {{-- Vite's tags for app.js and the page's own chunk (so it downloads alongside app.js). The
+         stylesheet and modulepreloads stay here; the <script> tags are held in a <template> and
+         added after the first paint, so the first screen (server-rendered, or the intro frame)
+         is on screen before any script runs. The files are already preloaded, so nothing is
+         downloaded later than before. --}}
+    @php($vite = (string) app(\Illuminate\Foundation\Vite::class)(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"]))
+    @php(preg_match_all('/<script\b[^>]*>.*?<\/script>/s', $vite, $scripts))
+    {!! str_replace($scripts[0], '', $vite) !!}
+    <template id="deferred-scripts">{!! implode('', $scripts[0]) !!}</template>
+    <script>
+        (function () {
+            var done = false;
+            function run() {
+                if (done) return;
+                done = true;
+                var t = document.getElementById('deferred-scripts');
+                if (!t) return;
+                t.content.querySelectorAll('script').forEach(function (s) {
+                    var n = document.createElement('script');
+                    for (var i = 0; i < s.attributes.length; i++) n.setAttribute(s.attributes[i].name, s.attributes[i].value);
+                    n.textContent = s.textContent;
+                    document.head.appendChild(n);
+                });
+            }
+            requestAnimationFrame(function () { requestAnimationFrame(run); });
+            setTimeout(run, 1500); // background tabs never get an animation frame
+        })();
+    </script>
     @inertiaHead
 </head>
 <body class="antialiased">
+    @unless (request()->is('admin', 'admin/*', 'login'))
+    {{-- The intro's first frame, painted before any script runs (it is the first contentful paint).
+         PageWipe.vue takes over from it; the inline script drops it at once for visitors who have
+         already seen the intro this session. The animation is a safety net: should the scripts
+         fail, the page is uncovered anyway. --}}
+    <div id="intro-shell" style="position:fixed;inset:0;z-index:199;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;background:#07080a;animation:intro-shell-out .6s ease 4s forwards">
+        <img src="/img/brand/logo-240.webp" alt="" width="240" height="180" style="width:min(80vw,22rem);height:auto;filter:drop-shadow(0 0 40px rgba(255,198,41,.35))">
+        <span style="width:12rem;height:2px;background:linear-gradient(90deg,transparent,#bfe9ff 15%,#bfe9ff 85%,transparent);box-shadow:0 0 14px rgba(191,233,255,.6);animation:intro-line .7s cubic-bezier(.76,0,.24,1) .2s both"></span>
+        <p style="margin:0;font:600 10px/1 'Unbounded',system-ui,sans-serif;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.8)">Premium · Car care</p>
+    </div>
+    <style>@keyframes intro-shell-out{to{opacity:0;visibility:hidden}}@keyframes intro-line{from{transform:scaleX(0)}to{transform:scaleX(1)}}</style>
+    <script>try{if(sessionStorage.getItem('md-intro')==='1'||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElementById('intro-shell').remove()}catch(e){}</script>
+    @endunless
     @inertia
 </body>
 </html>

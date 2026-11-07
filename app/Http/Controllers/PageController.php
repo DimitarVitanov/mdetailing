@@ -26,9 +26,7 @@ class PageController extends Controller
             'portfolio' => PortfolioItem::active()->featured()->orderBy('sort_order')->limit(6)->get(self::PORTFOLIO_CARD),
             'testimonials' => Testimonial::active()->featured()->latest()->limit(6)->get(self::TESTIMONIAL_CARD),
             'seo' => Seo::forPage('home'),
-        ])->withViewData([
-            'preloadImage' => ['base' => '/img/opt/hero-studio', 'widths' => [640, 1024, 1600, 2000], 'sizes' => '100vw'],
-        ]);
+        ])->withViewData(['preloadImage' => self::photo('gallery-01')]);
     }
 
     public function services()
@@ -36,7 +34,7 @@ class PageController extends Controller
         return Inertia::render('Services', [
             'services' => Service::active()->orderBy('sort_order')->get(self::SERVICE_CARD),
             'seo' => Seo::forPage('services', [__('nav.services') => '/services']),
-        ]);
+        ])->withViewData(['preloadImage' => self::photo('audi-black-front-2')]);
     }
 
     public function serviceShow(Service $service)
@@ -68,7 +66,7 @@ class PageController extends Controller
             'items' => PortfolioItem::active()->orderBy('sort_order')->get(self::PORTFOLIO_CARD),
             'categories' => PortfolioItem::active()->distinct()->pluck('category')->filter()->values(),
             'seo' => Seo::forPage('portfolio', [__('nav.portfolio') => '/portfolio']),
-        ]);
+        ])->withViewData(['preloadImage' => self::photo('gallery-02')]);
     }
 
     public function about()
@@ -76,7 +74,7 @@ class PageController extends Controller
         return Inertia::render('About', [
             'testimonials' => Testimonial::active()->latest()->get(self::TESTIMONIAL_CARD),
             'seo' => Seo::forPage('about', [__('nav.about') => '/about']),
-        ]);
+        ])->withViewData(['preloadImage' => self::photo('red-audi-04')]);
     }
 
     public function contact()
@@ -84,7 +82,7 @@ class PageController extends Controller
         return Inertia::render('Contact', [
             'services' => Service::active()->orderBy('sort_order')->get(['id', 'name', 'name_mk', 'slug']),
             'seo' => Seo::forPage('contact', [__('nav.contact') => '/contact']),
-        ]);
+        ])->withViewData(['preloadImage' => self::photo('gallery-06')]);
     }
 
     public function bookingStore(Request $request)
@@ -110,6 +108,12 @@ class PageController extends Controller
         Booking::create($validated);
 
         return back()->with('success', __('booking.sent'));
+    }
+
+    /** A page's main site photo, for the <link rel="preload"> in the root template (widths as in lib/img.js). */
+    private static function photo(string $name): array
+    {
+        return ['base' => "/img/opt/{$name}", 'widths' => [640, 1024, 1600], 'sizes' => '100vw'];
     }
 
     /** The /media URL path for an uploaded file (see MediaController). */

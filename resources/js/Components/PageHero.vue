@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import MaskLines from '@/Components/MaskLines.vue';
 import Photo from '@/Components/Photo.vue';
-import Sparks from '@/Components/Sparks.vue';
+import Sparks from '@/Components/SparksLazy.js';
 import { useI18n } from '@/i18n.js';
 import { photo } from '@/lib/img.js';
 

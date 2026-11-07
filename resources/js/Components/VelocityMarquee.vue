@@ -1,6 +1,6 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { gsap, reducedMotion, scrollVelocity } from '@/lib/motion';
+import { reducedMotion, scrollVelocity } from '@/lib/motion';
 import { whenReady } from '@/lib/intro';
 
 // An endless band of words. It drifts on its own, speeds up and leans while the page is
@@ -17,7 +17,7 @@ let x = 0;
 let dir = props.reverse ? 1 : -1;
 let skew = 0;
 let width = 0;
-let tick = null;
+let raf = null;
 let visible = true;
 let io = null;
 let cancelReady = () => {};
@@ -34,7 +34,8 @@ onMounted(() => {
     window.addEventListener('resize', measure);
     document.fonts?.ready.then(measure);
 
-    tick = () => {
+    const tick = () => {
+        raf = requestAnimationFrame(tick);
         if (!visible || !width) return;
         const v = scrollVelocity();
         if (Math.abs(v) > 0.4) dir = (v > 0 ? -1 : 1) * (props.reverse ? -1 : 1);
@@ -45,12 +46,12 @@ onMounted(() => {
         skew += (Math.max(-12, Math.min(12, -v * 0.5)) - skew) * 0.1;
         track.value.style.transform = `translate3d(${x}px,0,0) skewX(${skew.toFixed(2)}deg)`;
     };
-    cancelReady = whenReady(() => gsap.ticker.add(tick));
+    cancelReady = whenReady(() => (raf = requestAnimationFrame(tick)));
 });
 
 onBeforeUnmount(() => {
     cancelReady();
-    if (tick) gsap.ticker.remove(tick);
+    if (raf) cancelAnimationFrame(raf);
     io?.disconnect();
     window.removeEventListener('resize', measure);
 });

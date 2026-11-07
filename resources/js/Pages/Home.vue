@@ -1,34 +1,25 @@
 <template>
     <!-- ============ HERO: the car drives into the studio ============ -->
     <section class="relative min-h-[100svh] overflow-hidden grain">
-        <HeroDrive :alt="c('hero.badge')" :rest="60" :before-label="t('portfolioPage.before')" :after-label="t('portfolioPage.after')" />
-        <div class="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/20 to-transparent pointer-events-none"></div>
+        <HeroDrive :alt="c('hero.badge')" :rest="58" :before-label="t('portfolioPage.before')" :after-label="t('portfolioPage.after')" @arrived="arrive" />
         <div class="absolute inset-0 pointer-events-none"><Sparks :density="0.8" /></div>
 
-        <div class="relative container-x min-h-[100svh] flex flex-col pt-28 pb-24 lg:justify-end lg:pt-32 lg:pb-28">
-            <div class="grid lg:grid-cols-[1.4fr_1fr] gap-10 items-end">
-                <div class="lg:max-w-[46rem]">
-                    <p class="hero-fade eyebrow mb-7" style="--d: 100ms">{{ c('hero.badge') }}</p>
-                    <MaskLines tag="h1" hero :delay="150" class="font-display text-[10.5vw] sm:text-[9vw] lg:text-[5.4vw] 2xl:text-[6.2rem] leading-[0.9] drop-shadow-[0_6px_30px_rgba(0,0,0,0.55)]"
-                               :lines="[c('hero.title1'), { text: c('hero.title2'), class: 'text-signal' }, { text: c('hero.title3'), class: 'text-outline' }]" />
-                    <p class="hero-fade mt-8 text-body text-base sm:text-lg leading-relaxed max-w-md" style="--d: 700ms">{{ c('hero.subtitle') }}</p>
-                    <div class="hero-fade mt-9 flex flex-col sm:flex-row gap-4" style="--d: 850ms">
-                        <Link href="/contact" class="btn-signal">{{ c('hero.cta') }} <Icon name="arrow-right" :size="15" /></Link>
-                        <Link href="/services" class="btn-ghost">{{ c('hero.ctaSecondary') }}</Link>
-                    </div>
+        <!-- The words wait for the car to stop (HeroDrive's 'arrived') and rise in centred above it. -->
+        <div class="relative container-x min-h-[100svh] flex flex-col items-center text-center pt-28 sm:pt-32 pb-24">
+            <div class="relative max-w-4xl">
+                <div class="absolute -inset-x-24 -inset-y-10 bg-[radial-gradient(ellipse_at_center,rgb(7_8_10/0.75),transparent_70%)] pointer-events-none"></div>
+                <p class="hero-fade eyebrow mb-7 relative" style="--d: 0ms">{{ c('hero.badge') }}</p>
+                <MaskLines ref="headline" tag="h1" manual :delay="100" class="relative font-display text-[10.5vw] sm:text-[8vw] lg:text-[5.6vw] 2xl:text-[6.4rem] leading-[0.9] drop-shadow-[0_6px_30px_rgba(0,0,0,0.6)]"
+                           :lines="[c('hero.title1'), { text: c('hero.title2'), class: 'text-signal' }, { text: c('hero.title3'), class: 'text-outline' }]" />
+                <p class="hero-fade relative mx-auto mt-7 text-body text-base sm:text-lg leading-relaxed max-w-xl" style="--d: 550ms">{{ c('hero.subtitle') }}</p>
+                <div class="hero-fade relative mt-8 flex flex-col sm:flex-row sm:justify-center gap-4" style="--d: 700ms">
+                    <Link href="/contact" class="btn-signal">{{ c('hero.cta') }} <Icon name="arrow-right" :size="15" /></Link>
+                    <Link href="/services" class="btn-ghost">{{ c('hero.ctaSecondary') }}</Link>
                 </div>
-
-                <!-- inspection sheet -->
-                <dl v-if="stats.length" class="hero-fade hidden lg:block justify-self-end w-64 border-l border-led/40 pl-6 space-y-5" style="--d: 1000ms">
-                    <div v-for="s in stats.slice(0, 3)" :key="s.label" class="flex items-baseline justify-between gap-4 border-b border-white/[0.08] pb-4 last:border-0">
-                        <dt class="font-display text-[9px] tracking-[0.3em] text-steel">{{ s.label }}</dt>
-                        <dd class="font-display text-2xl text-chrome">{{ s.value }}</dd>
-                    </div>
-                </dl>
             </div>
         </div>
 
-        <p class="hero-fade absolute right-6 bottom-6 hidden lg:flex items-center gap-3 font-display text-[9px] tracking-[0.3em] text-steel" style="--d: 1100ms">{{ t('hero.scroll') }} <span class="w-10 h-px bg-led shadow-[0_0_8px_var(--color-led)]"></span></p>
+        <p class="hero-fade absolute right-6 bottom-6 hidden lg:flex items-center gap-3 font-display text-[9px] tracking-[0.3em] text-steel" style="--d: 1000ms">{{ t('hero.scroll') }} <span class="w-10 h-px bg-led shadow-[0_0_8px_var(--color-led)]"></span></p>
     </section>
 
     <!-- ============ LED TICKER ============ -->
@@ -150,7 +141,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
 import HeroDrive from '@/Components/HeroDrive.vue';
@@ -167,7 +158,6 @@ import Sparks from '@/Components/SparksLazy.js';
 import VelocityMarquee from '@/Components/VelocityMarquee.vue';
 import { useI18n } from '@/i18n.js';
 import { imageFor, photo, portfolioPhoto } from '@/lib/img.js';
-import { whenReady } from '@/lib/intro';
 
 defineOptions({ layout: MainLayout });
 
@@ -192,9 +182,24 @@ const statementHighlights = ['mdetailing', 'детално', 'керамичка
 
 const gallery = computed(() => props.portfolio.map((item) => ({ image: imageFor(item.after_image || item.before_image, portfolioPhoto(item)), alt: localized(item, 'title'), label: localized(item, 'title'), category: item.category })));
 
-let cancel = () => {};
-onMounted(() => { cancel = whenReady(() => document.querySelectorAll('.hero-fade').forEach((el) => el.classList.add('is-in'))); });
-onBeforeUnmount(() => cancel());
+const headline = ref(null);
+let fallback = null;
+let arrived = false;
+
+// The headline and the rest of the hero text come in once the car has stopped.
+function arrive() {
+    if (arrived) return;
+    arrived = true;
+    clearTimeout(fallback);
+    headline.value?.reveal();
+    document.querySelectorAll('.hero-fade').forEach((el) => el.classList.add('is-in'));
+}
+
+onMounted(() => {
+    // Should the scene not report back (it always does), the words come in anyway.
+    fallback = setTimeout(arrive, 6000);
+});
+onBeforeUnmount(() => clearTimeout(fallback));
 </script>
 
 <style scoped>

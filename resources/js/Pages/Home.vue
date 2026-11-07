@@ -1,16 +1,15 @@
 <template>
-    <!-- ============ HERO: before → after ============ -->
+    <!-- ============ HERO: the car drives into the studio ============ -->
     <section class="relative min-h-[100svh] overflow-hidden grain">
-        <BeforeAfter :image="photo('gallery-01')" :alt="c('hero.badge')" position="center 45%" :rest="58" :before-label="t('portfolioPage.before')" :after-label="t('portfolioPage.after')" class="absolute inset-0" />
-        <div class="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-ink/10 pointer-events-none"></div>
-        <div class="absolute inset-0 bg-gradient-to-r from-ink/75 via-ink/10 to-transparent pointer-events-none"></div>
+        <HeroDrive :alt="c('hero.badge')" :rest="60" :before-label="t('portfolioPage.before')" :after-label="t('portfolioPage.after')" />
+        <div class="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/20 to-transparent pointer-events-none"></div>
         <div class="absolute inset-0 pointer-events-none"><Sparks :density="0.8" /></div>
 
-        <div class="relative container-x min-h-[100svh] flex flex-col justify-end pt-32 pb-24 lg:pb-28">
-            <div class="grid lg:grid-cols-[1.3fr_1fr] gap-10 items-end">
-                <div>
+        <div class="relative container-x min-h-[100svh] flex flex-col pt-28 pb-24 lg:justify-end lg:pt-32 lg:pb-28">
+            <div class="grid lg:grid-cols-[1.4fr_1fr] gap-10 items-end">
+                <div class="lg:max-w-[46rem]">
                     <p class="hero-fade eyebrow mb-7" style="--d: 100ms">{{ c('hero.badge') }}</p>
-                    <MaskLines tag="h1" hero :delay="150" class="font-display text-[10.5vw] sm:text-[9vw] lg:text-[6.6vw] 2xl:text-[7.5rem] leading-[0.9] drop-shadow-[0_6px_30px_rgba(0,0,0,0.55)]"
+                    <MaskLines tag="h1" hero :delay="150" class="font-display text-[10.5vw] sm:text-[9vw] lg:text-[5.4vw] 2xl:text-[6.2rem] leading-[0.9] drop-shadow-[0_6px_30px_rgba(0,0,0,0.55)]"
                                :lines="[c('hero.title1'), { text: c('hero.title2'), class: 'text-signal' }, { text: c('hero.title3'), class: 'text-outline' }]" />
                     <p class="hero-fade mt-8 text-body text-base sm:text-lg leading-relaxed max-w-md" style="--d: 700ms">{{ c('hero.subtitle') }}</p>
                     <div class="hero-fade mt-9 flex flex-col sm:flex-row gap-4" style="--d: 850ms">
@@ -154,7 +153,7 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
-import BeforeAfter from '@/Components/BeforeAfter.vue';
+import HeroDrive from '@/Components/HeroDrive.vue';
 import Gauge from '@/Components/Gauge.vue';
 import HexFeatures from '@/Components/HexFeatures.vue';
 import Icon from '@/Components/Icon.vue';

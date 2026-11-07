@@ -1,11 +1,11 @@
 // The home page's drive-in, rendered offline into a video by render.mjs (the website itself
 // never runs this: it plays the result, public/video/drive-*.mp4).
 //
-// A night road with lane markings and LED rails. The car's headlights show far away; it drives
-// in fast from the left lane to the middle, brakes with a nose dip, the studio lights flicker on,
-// and an inspection light sweeps right to left leaving the paint glossy behind it, while the
-// camera swings round from the right to the car's left side, where MDETAILING writes itself on
-// the door in yellow.
+// A night road with lane markings and LED rails, seen from a raised camera straight down the road.
+// The car comes at the camera fast from far away, brakes hard with a nose dip, the studio lights
+// flicker on and an inspection light sweeps right to left leaving the paint glossy behind it,
+// while the camera eases round to the front-left and a little higher; the MDETAILING logo is
+// printed onto the hood behind a glowing yellow scan line.
 //
 // window.setup({ width, height, fov, fill: [w, h] }) → loads and frames the scene
 // window.renderAt(seconds)                          → renders that moment
@@ -26,9 +26,9 @@ const LED = new THREE.Color(0xbfe9ff);
 const SIGNAL = new THREE.Color(0xffc629);
 
 // Timeline (seconds)
-export const T = { brakeAt: 1.2, stop: 2.4, lightsOn: 2.5, sweepFrom: 2.85, sweepTo: 3.95, writeFrom: 3.55, writeTo: 4.75, end: 5.3 };
-const DIST = 70; // how far away the car starts (m)
-const START_X = -2.1; // the left lane, seen from the camera
+export const T = { brakeAt: 0.55, stop: 1.7, lightsOn: 1.8, sweepFrom: 2.1, sweepTo: 3.0, writeFrom: 2.7, writeTo: 3.5, end: 4.4 };
+const DIST = 50; // how far away the car starts (m)
+const START_X = -1.4; // a little left of the middle, seen from the camera
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
 const smooth = (t) => { t = clamp01(t); return t * t * (3 - 2 * t); };
@@ -45,7 +45,7 @@ let renderer, composer, scene, camera, car, curve;
 let wheels = [];
 let wheelBase = [];
 let sweepUniform = { value: 10 };
-let writeUniform = { value: -10 };
+let writeUniform = { value: 10 };
 let headSpots = [], headSprites = [];
 let key, hemi, inspect;
 let cfg;
@@ -170,31 +170,11 @@ function paintMaterial() {
     return m;
 }
 
-// MDETAILING in the site's display face, yellow on transparent.
-async function letteringTexture() {
-    const face = new FontFace('Unbounded', 'url(/fonts/unbounded-latin.woff2)', { weight: '500 800' });
-    document.fonts.add(await face.load());
-    const c = document.createElement('canvas');
-    c.width = 2048;
-    c.height = 360;
-    const g = c.getContext('2d');
-    g.fillStyle = '#ffc629';
-    g.font = '800 236px Unbounded';
-    g.letterSpacing = '6px';
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    g.fillText('MDETAILING', c.width / 2, c.height / 2 + 10);
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    return tex;
-}
-
-// The lettering on the car's left door. It is drawn on from the rear to the front (world z <
-// uWrite) behind a bright yellow edge, like a scan line printing it.
-function letteringMaterial(map) {
+// The MDETAILING logo, printed on the hood from the nose towards the windscreen (world z > uWrite)
+// behind a bright yellow scan line.
+function badgeMaterial(map) {
     const m = new THREE.MeshStandardMaterial({
-        map, emissiveMap: map, emissive: SIGNAL, emissiveIntensity: 0.55, roughness: 0.3, metalness: 0.1,
+        map, emissiveMap: map, emissive: 0xffffff, emissiveIntensity: 0.3, roughness: 0.25, metalness: 0.1,
         transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4,
     });
     m.onBeforeCompile = (shader) => {
@@ -205,12 +185,12 @@ function letteringMaterial(map) {
         shader.fragmentShader = shader.fragmentShader
             .replace('#include <common>', '#include <common>\nuniform float uWrite;\nvarying vec3 vWorldPos;\nfloat written;\nfloat edgeGlow;')
             .replace('#include <map_fragment>', `#include <map_fragment>
-                written = smoothstep(uWrite + 0.03, uWrite - 0.03, vWorldPos.z);
-                edgeGlow = 1.0 - smoothstep(0.0, 0.16, abs(vWorldPos.z - uWrite));
+                written = smoothstep(uWrite - 0.02, uWrite + 0.02, vWorldPos.z);
+                edgeGlow = 1.0 - smoothstep(0.0, 0.07, abs(vWorldPos.z - uWrite));
                 float ink = diffuseColor.a;
                 diffuseColor.a = ink * max(written, edgeGlow);`)
             .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-                totalEmissiveRadiance = totalEmissiveRadiance * written + vec3(1.0, 0.82, 0.3) * edgeGlow * emissiveColor.a * 7.0;`);
+                totalEmissiveRadiance = totalEmissiveRadiance * written + vec3(1.0, 0.8, 0.25) * edgeGlow * emissiveColor.a * 6.0;`);
     };
     return m;
 }
@@ -276,7 +256,7 @@ window.setup = async (options) => {
     // the key light: a spot straight over the parking place, so the car stands in a pool of
     // light and the road around it stays dark
     key = new THREE.SpotLight(0xffffff, 0, 0, 0.34, 0.75, 0);
-    key.position.set(-1.6, 10, 1.5);
+    key.position.set(-0.8, 10, 2.2);
     key.target.position.set(0, 0, 0);
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
@@ -325,16 +305,18 @@ window.setup = async (options) => {
     car.add(model);
     scene.add(car);
 
-    // the lettering, projected onto the left door while the car stands at the origin, then
-    // carried along with it
+    // the logo, projected down onto the hood while the car stands at the origin, then carried
+    // along with it (the box stops short of the nose, so nothing smears down the front)
     car.updateMatrixWorld(true);
-    const body = model.getObjectByName('body');
-    const lettering = new THREE.Mesh(
-        new DecalGeometry(body, new THREE.Vector3(-1.1, 0.56, -0.08), new THREE.Euler(0, -Math.PI / 2, 0), new THREE.Vector3(1.95, 0.34, 0.9)),
-        letteringMaterial(await letteringTexture()),
+    const logo = await new THREE.TextureLoader().loadAsync('/img/brand/logo-960.webp');
+    logo.colorSpace = THREE.SRGBColorSpace;
+    logo.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const badge = new THREE.Mesh(
+        new DecalGeometry(model.getObjectByName('body'), new THREE.Vector3(0, 1.0, 1.44), new THREE.Euler(-Math.PI / 2, 0, 0), new THREE.Vector3(0.9, 0.67, 0.6)),
+        badgeMaterial(logo),
     );
-    lettering.renderOrder = 3;
-    car.add(lettering);
+    badge.renderOrder = 3;
+    car.add(badge);
 
     // headlights: spots that light the road ahead, and glows that read from far away
     car.updateMatrixWorld(true);
@@ -381,12 +363,13 @@ window.setup = async (options) => {
         }
         return hi;
     };
-    // the camera swings from the right, past the nose, round to the car's left side
-    const dPark = new THREE.Vector3(1.6, 0.75, 5.6).normalize();
+    // the camera: raised, straight down the road while the car comes at it, then it eases round
+    // to the front-left and a little higher, so the hood (and the logo on it) shows
+    const dPark = new THREE.Vector3(0.3, 0.9, 6.0).normalize();
     const fd = fitDistance(dPark);
-    const dEnd = new THREE.Vector3(-4.3, 0.95, 3.7).normalize();
-    const pDrive = L.clone().addScaledVector(new THREE.Vector3(2.2, 0.42, 6.5).normalize(), fd * 1.18);
-    const pPark = L.clone().addScaledVector(new THREE.Vector3(0.2, 0.85, 5.8).normalize(), fd * 0.98);
+    const dEnd = new THREE.Vector3(-2.4, 1.55, 5.4).normalize();
+    const pDrive = L.clone().addScaledVector(dPark, fd * 1.12);
+    const pPark = L.clone().addScaledVector(new THREE.Vector3(-1.0, 1.2, 5.9).normalize(), fd * 0.95);
     const pEnd = L.clone().addScaledVector(dEnd, fitDistance(dEnd) * (cfg.endPush ?? 0.8)); // the final push-in
     curve = new THREE.CatmullRomCurve3([pDrive, pPark, pEnd]);
     cfg.L = L;
@@ -437,13 +420,14 @@ window.renderAt = (t) => {
     inspect.intensity = k > 0 && k < 1 ? 10 * Math.sin(Math.PI * k) : 0;
     sweepUniform.value = k <= 0 ? 10 : k >= 1 ? -10 : sx;
 
-    // MDETAILING written on the door, rear to front
+    // the logo printed on the hood, nose first
     const w = clamp01((t - T.writeFrom) / (T.writeTo - T.writeFrom));
-    writeUniform.value = w <= 0 ? -10 : w >= 1 ? 10 : -1.25 + 2.4 * easeInOut(w);
+    writeUniform.value = w <= 0 ? 10 : w >= 1 ? -10 : 1.82 - 0.8 * easeInOut(w);
 
     // the camera: low and ahead while the car drives in, then round to the right and closer
     const look = new THREE.Vector3(car.position.x, cfg.L.y, car.position.z);
-    const u = easeInOut((t - (T.stop - 0.3)) / (T.end - (T.stop - 0.3)));
+    const kc = clamp01((t - (T.stop - 0.3)) / (T.end - (T.stop - 0.3)));
+    const u = 1 - Math.pow(1 - kc, 3); // quick to start, settling slowly
     if (t < T.stop - 0.3) camera.position.copy(cfg.pDrive);
     else camera.position.copy(curve.getPoint(u));
     camera.lookAt(look);

@@ -34,8 +34,6 @@
     @if (app()->getLocale() === 'mk')
     <link rel="preload" href="/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low">
     @endif
-    {{-- The logo: the header and the intro both show it before any script has run. --}}
-    <link rel="preload" as="image" href="/img/brand/logo-240.webp" fetchpriority="high">
     @if (! empty($preloadImage))
     {{-- The page's main photo, passed by its controller; widths match the <img> srcset. --}}
     <link rel="preload" as="image" imagesrcset="{{ collect($preloadImage['widths'])->map(fn ($w) => "{$preloadImage['base']}-{$w}.webp {$w}w")->implode(', ') }}" imagesizes="{{ $preloadImage['sizes'] }}" fetchpriority="high">
@@ -82,7 +80,11 @@
          already seen the intro this session. The animation is a safety net: should the scripts
          fail, the page is uncovered anyway. --}}
     <div id="intro-shell" style="position:fixed;inset:0;z-index:199;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;background:#07080a;animation:intro-shell-out .6s ease 4s forwards">
-        <img src="/img/brand/logo-240.webp" alt="" width="240" height="180" style="width:min(80vw,22rem);height:auto;filter:drop-shadow(0 0 40px rgba(255,198,41,.35))">
+        {{-- Big on phones (up to 80vw), so it comes in sizes up to 960px: a 3x screen gets a sharp one. --}}
+        <picture>
+            <source type="image/avif" srcset="/img/brand/logo-480.avif 480w, /img/brand/logo-720.avif 720w, /img/brand/logo-960.avif 960w" sizes="min(80vw, 22rem)">
+            <img src="/img/brand/logo-480.webp" srcset="/img/brand/logo-240.webp 240w, /img/brand/logo-480.webp 480w, /img/brand/logo-720.webp 720w, /img/brand/logo-960.webp 960w" sizes="min(80vw, 22rem)" alt="" width="240" height="180" fetchpriority="high" style="display:block;width:min(80vw,22rem);height:auto;filter:drop-shadow(0 0 40px rgba(255,198,41,.35))">
+        </picture>
         <span style="width:12rem;height:2px;background:linear-gradient(90deg,transparent,#bfe9ff 15%,#bfe9ff 85%,transparent);box-shadow:0 0 14px rgba(191,233,255,.6);animation:intro-line .7s cubic-bezier(.76,0,.24,1) .2s both"></span>
         <p style="margin:0;font:600 10px/1 'Unbounded',system-ui,sans-serif;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.8)">Premium · Car care</p>
     </div>

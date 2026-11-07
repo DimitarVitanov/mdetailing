@@ -132,7 +132,10 @@ onBeforeUnmount(() => {
         <div v-show="wiping" class="fixed inset-0 z-[190] pointer-events-none overflow-hidden" :class="wipePhase">
             <div class="wipe-panel wipe-led absolute inset-0 bg-led"></div>
             <div class="wipe-panel wipe-dark absolute inset-0 bg-ink grain flex items-center justify-center">
-                <img class="wipe-logo w-32 sm:w-40 h-auto" src="/img/brand/logo-240.webp" alt="" width="240" height="180">
+                <picture>
+                    <source type="image/avif" srcset="/img/brand/logo-480.avif 480w, /img/brand/logo-720.avif 720w" sizes="(min-width: 640px) 10rem, 8rem">
+                    <img class="wipe-logo w-32 sm:w-40 h-auto" src="/img/brand/logo-240.webp" srcset="/img/brand/logo-240.webp 240w, /img/brand/logo-480.webp 480w, /img/brand/logo-720.webp 720w" sizes="(min-width: 640px) 10rem, 8rem" alt="" width="240" height="180" fetchpriority="low">
+                </picture>
             </div>
         </div>
     </div>

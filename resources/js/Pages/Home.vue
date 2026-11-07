@@ -1,18 +1,24 @@
 <template>
     <!-- ============ HERO: the car drives in (a video of the 3D scene, tools/car-render) ============ -->
     <!-- The words sit above and below the drive, never on top of the car, and come in as soon as
-         the intro has gone. No grain overlay here: laid over a playing video it is repainted on
-         every frame, which costs seconds of main thread on a phone. -->
-    <section class="relative overflow-hidden">
-        <div class="relative z-10 container-x pt-28 sm:pt-32 lg:pt-36 text-center">
-            <p class="hero-fade eyebrow mb-6" style="--d: 0ms">{{ c('hero.badge') }}</p>
-            <MaskLines tag="h1" hero :delay="100" class="font-display text-[10.5vw] sm:text-[7.5vw] lg:text-[4.6vw] 2xl:text-[5.6rem] leading-[0.92] lg:[&_.mask-line]:inline-block"
+         the intro has gone. The first screen holds it all, buttons included: on large screens the
+         hero is exactly one screen tall and the drive takes the height that is left (scaled down
+         whole, keeping its shape); on phones the stage gets shorter on short screens, losing only
+         sky and road. No grain overlay here: laid over a playing video it is repainted on every
+         frame, which costs seconds of main thread on a phone. -->
+    <section class="relative overflow-hidden lg:flex lg:flex-col lg:h-[100svh] lg:min-h-[36rem]">
+        <div class="relative z-10 container-x pt-24 sm:pt-32 lg:pt-28 text-center">
+            <p class="hero-fade eyebrow mb-4 lg:mb-6" style="--d: 0ms">{{ c('hero.badge') }}</p>
+            <MaskLines tag="h1" hero :delay="100" class="font-display text-[10.5vw] sm:text-[7.5vw] lg:text-[min(4.6vw,7.5svh)] 2xl:text-[min(5.6rem,7.5svh)] leading-[0.92] lg:[&_.mask-line]:inline-block"
                        :lines="[c('hero.title1'), { text: c('hero.title2'), class: 'text-signal' }, { text: c('hero.title3'), class: 'text-outline' }]" />
         </div>
 
-        <HeroDrive class="-mt-2 sm:-mt-8 lg:-mt-20" />
+        <div class="relative -mt-2 sm:-mt-8 lg:-mt-20 lg:flex-1 lg:min-h-0">
+            <HeroDrive class="w-full aspect-[944/800] min-h-[12.5rem] max-h-[calc(100svh-27.5rem)] sm:max-h-[64svh]
+                              lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:h-full lg:w-auto lg:max-w-full lg:min-h-0 lg:max-h-[33.75vw] lg:aspect-[1920/648]" />
+        </div>
 
-        <div class="relative z-10 container-x -mt-4 lg:mt-0 pb-20 lg:pb-24 flex flex-col lg:flex-row items-center lg:items-end lg:justify-between gap-7 text-center lg:text-left">
+        <div class="relative z-10 container-x -mt-4 lg:mt-0 pb-20 lg:pb-10 flex flex-col lg:flex-row items-center lg:items-end lg:justify-between gap-6 lg:gap-7 text-center lg:text-left">
             <p class="hero-fade text-body text-base sm:text-lg leading-relaxed max-w-xl" style="--d: 450ms">{{ c('hero.subtitle') }}</p>
             <div class="hero-fade flex flex-col sm:flex-row gap-4 shrink-0" style="--d: 600ms">
                 <Link href="/contact" class="btn-signal">{{ c('hero.cta') }} <Icon name="arrow-right" :size="15" /></Link>

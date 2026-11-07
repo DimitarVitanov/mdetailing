@@ -75,18 +75,21 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="relative w-full aspect-[944/800] max-h-[64vh] lg:aspect-[1920/648] lg:max-h-[70vh] overflow-hidden bg-ink" aria-hidden="true">
+    <!-- sized by the page (Home.vue); the video covers whatever box it is given, trimming more sky
+         than road when the box is shorter than the video, so the car stays whole -->
+    <div class="relative bg-ink" aria-hidden="true">
         <picture>
             <source :media="WIDE" :srcset="`/video/drive-wide-${state === 'still' ? 'last' : 'first'}.webp${V}`" width="1920" height="648">
-            <img :src="`/video/drive-tall-${state === 'still' ? 'last' : 'first'}.webp${V}`" width="944" height="800" alt="" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover">
+            <img :src="`/video/drive-tall-${state === 'still' ? 'last' : 'first'}.webp${V}`" width="944" height="800" alt="" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover object-[50%_72%]">
         </picture>
         <!-- transparent until its first frame is in, then that frame covers the identical image -->
         <video ref="video" muted playsinline preload="auto" disablepictureinpicture disableremoteplayback tabindex="-1"
-               class="absolute inset-0 w-full h-full object-cover" :class="{ invisible: state === 'still' }"></video>
-        <!-- soft edges, so the frame melts into the page -->
-        <div class="absolute inset-x-0 top-0 h-[22%] bg-gradient-to-b from-ink to-transparent"></div>
-        <div class="absolute inset-x-0 bottom-0 h-[26%] bg-gradient-to-t from-ink to-transparent"></div>
-        <div class="absolute inset-y-0 left-0 w-[8%] bg-gradient-to-r from-ink to-transparent"></div>
-        <div class="absolute inset-y-0 right-0 w-[8%] bg-gradient-to-l from-ink to-transparent"></div>
+               class="absolute inset-0 w-full h-full object-cover object-[50%_72%]" :class="{ invisible: state === 'still' }"></video>
+        <!-- soft edges, so the frame melts into the page; they reach 1px past it, so no sliver of the
+             video shows at its edge when the stage lands between pixels -->
+        <div class="absolute -inset-x-px -top-px h-[22%] bg-gradient-to-b from-ink to-transparent"></div>
+        <div class="absolute -inset-x-px -bottom-px h-[26%] bg-gradient-to-t from-ink to-transparent"></div>
+        <div class="absolute -inset-y-px -left-px w-[8%] bg-gradient-to-r from-ink to-transparent"></div>
+        <div class="absolute -inset-y-px -right-px w-[8%] bg-gradient-to-l from-ink to-transparent"></div>
     </div>
 </template>

@@ -36,10 +36,6 @@
     @endif
     {{-- The logo: the header and the intro both show it before any script has run. --}}
     <link rel="preload" as="image" href="/img/brand/logo-240.webp" fetchpriority="high">
-    @if (! empty($preloadCar))
-    {{-- The home page's car (HeroDrive.vue), fetched alongside the backdrop. --}}
-    <link rel="preload" as="image" imagesrcset="/img/car/ferrari-f8-800.webp 800w, /img/car/ferrari-f8-1200.webp 1200w, /img/car/ferrari-f8-1600.webp 1600w" imagesizes="(min-width: 1024px) 58vw, 100vw" fetchpriority="high">
-    @endif
     @if (! empty($preloadImage))
     {{-- The page's main photo, passed by its controller; widths match the <img> srcset. --}}
     <link rel="preload" as="image" imagesrcset="{{ collect($preloadImage['widths'])->map(fn ($w) => "{$preloadImage['base']}-{$w}.webp {$w}w")->implode(', ') }}" imagesizes="{{ $preloadImage['sizes'] }}" fetchpriority="high">

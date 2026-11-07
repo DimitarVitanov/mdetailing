@@ -1,13 +1,11 @@
 <template>
-    <!-- ============ HERO: the car drives into the studio ============ -->
+    <!-- ============ HERO: the car drives in (3D, lib/carScene.js) ============ -->
     <section class="relative min-h-[100svh] overflow-hidden grain">
-        <HeroDrive :alt="c('hero.badge')" :rest="58" :before-label="t('portfolioPage.before')" :after-label="t('portfolioPage.after')" @arrived="arrive" />
-        <div class="absolute inset-0 pointer-events-none"><Sparks :density="0.8" /></div>
+        <HeroCar3D @arrived="arrive" />
 
-        <!-- The words wait for the car to stop (HeroDrive's 'arrived') and rise in centred above it. -->
+        <!-- The words wait for the car to stop (the scene's 'arrived') and rise in centred above it. -->
         <div class="relative container-x min-h-[100svh] flex flex-col items-center text-center pt-28 sm:pt-32 pb-24">
             <div class="relative max-w-4xl">
-                <div class="absolute -inset-x-24 -inset-y-10 bg-[radial-gradient(ellipse_at_center,rgb(7_8_10/0.75),transparent_70%)] pointer-events-none"></div>
                 <p class="hero-fade eyebrow mb-7 relative" style="--d: 0ms">{{ c('hero.badge') }}</p>
                 <MaskLines ref="headline" tag="h1" manual :delay="100" class="relative font-display text-[10.5vw] sm:text-[8vw] lg:text-[5.6vw] 2xl:text-[6.4rem] leading-[0.9] drop-shadow-[0_6px_30px_rgba(0,0,0,0.6)]"
                            :lines="[c('hero.title1'), { text: c('hero.title2'), class: 'text-signal' }, { text: c('hero.title3'), class: 'text-outline' }]" />
@@ -144,7 +142,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
-import HeroDrive from '@/Components/HeroDrive.vue';
+import HeroCar3D from '@/Components/HeroCar3D.vue';
 import Gauge from '@/Components/Gauge.vue';
 import HexFeatures from '@/Components/HexFeatures.vue';
 import Icon from '@/Components/Icon.vue';
@@ -197,7 +195,7 @@ function arrive() {
 
 onMounted(() => {
     // Should the scene not report back (it always does), the words come in anyway.
-    fallback = setTimeout(arrive, 6000);
+    fallback = setTimeout(arrive, 4500);
 });
 onBeforeUnmount(() => clearTimeout(fallback));
 </script>

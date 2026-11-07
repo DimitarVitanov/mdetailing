@@ -26,7 +26,7 @@ class PageController extends Controller
             'portfolio' => PortfolioItem::active()->featured()->orderBy('sort_order')->limit(6)->get(self::PORTFOLIO_CARD),
             'testimonials' => Testimonial::active()->featured()->latest()->limit(6)->get(self::TESTIMONIAL_CARD),
             'seo' => Seo::forPage('home'),
-        ])->withViewData(['preloadImage' => self::photo('hero-studio'), 'preloadCar' => true]);
+        ]);
     }
 
     public function services()

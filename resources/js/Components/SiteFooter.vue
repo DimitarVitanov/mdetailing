@@ -103,7 +103,7 @@ const toTop = () => {
 
             <div class="border-t border-white/[0.06]">
                 <div class="container-x py-5 flex flex-col sm:flex-row gap-3 sm:items-center justify-between text-xs text-steel">
-                    <p>© {{ year }} MDetailing Premium Car Care · {{ t('footer.rights') }}</p>
+                    <p>© {{ year }} MDetailing Premium Car Care · {{ t('footer.rights') }} <span class="block sm:inline sm:ml-3 text-steel/70">3D: Ferrari 458 by <a href="https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6" target="_blank" rel="noopener" class="underline hover:text-white">vicent091036</a> (CC BY)</span></p>
                     <button type="button" class="inline-flex items-center gap-2 font-display text-[10px] tracking-[0.25em] text-white hover:text-signal transition-colors" @click="toTop">
                         Top <Icon name="arrow-up-right" :size="13" class="-rotate-45" />
                     </button>

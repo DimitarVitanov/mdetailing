@@ -26,7 +26,7 @@ const LED = new THREE.Color(0xbfe9ff);
 const SIGNAL = new THREE.Color(0xffc629);
 
 // Timeline (seconds)
-export const T = { brakeAt: 0.55, stop: 1.7, lightsOn: 1.8, sweepFrom: 2.1, sweepTo: 3.0, writeFrom: 2.7, writeTo: 3.5, end: 4.4 };
+export const T = { brakeAt: 0.6, stop: 1.3, lightsOn: 1.4, sweepFrom: 1.65, sweepTo: 2.45, writeFrom: 2.1, writeTo: 2.8, end: 3.6 };
 const DIST = 50; // how far away the car starts (m)
 const START_X = -1.4; // a little left of the middle, seen from the camera
 const LOGO_Z = 1.56; // where the logo sits on the hood (towards the nose as it grows)
@@ -52,17 +52,11 @@ let key, hemi, inspect;
 let cfg;
 let lookY = 0.55;
 
-// Distance driven: constant speed, then a linear brake to a stop at T.stop.
+// Distance driven: the car rushes in from the distance and eases into its stop at T.stop
+// (fastest at the start, where it is far away and small, so there is no waiting for it).
 function driven(t) {
-    const tb = T.brakeAt, ts = T.stop;
-    const v0 = DIST / (tb + (ts - tb) / 2);
-    if (t <= 0) return 0;
-    if (t < tb) return v0 * t;
-    if (t < ts) {
-        const u = t - tb;
-        return v0 * tb + v0 * u - 0.5 * (v0 / (ts - tb)) * u * u;
-    }
-    return DIST;
+    const k = clamp01(t / T.stop);
+    return DIST * (1 - Math.pow(1 - k, 3));
 }
 
 function pitch(t) {

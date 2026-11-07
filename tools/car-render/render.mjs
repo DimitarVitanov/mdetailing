@@ -20,7 +20,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
 const out = path.join(root, 'public/video');
 const FPS = 30;
-const END = 4.4;
+const END = 3.6;
 
 // wide: desktop stage (≈ 2.96:1); tall: phone stage (≈ 1.18:1). fill = share of the frame the
 // parked car may take (half-widths in NDC); endPush = how far in the final shot comes from there.

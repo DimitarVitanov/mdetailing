@@ -7,7 +7,10 @@
 //                  where the car drives) and where the video stage sits; drive/NNNN.jpg its frames
 // - home.jpg       the desktop home page, long, for the scrolling browser window
 // - services.jpg   the desktop services page's first screen, for the second window
-// - m-home.jpg, m-services.jpg, m-contact.jpg  the phone pages, long
+// - services-long.jpg, portfolio.jpg, detail.jpg (+ .json: the booking button), contact.jpg
+//                  (+ .json: the form, filled in but never sent, and its button)
+// - data.json      services, features, stats and texts, as the site shows them
+// - m-*.jpg        the phone pages, long
 //
 // The intro is skipped and every page is scrolled through once first, so all reveals are done.
 import fs from 'node:fs';
@@ -84,9 +87,9 @@ async function long(page, file, height) {
     fs.writeFileSync(path.join(out, 'hero.json'), JSON.stringify({ viewport: DESKTOP, stage }, null, 2));
     console.log('  hero.png, hero.json');
 
-    await revealAll(page, 4200);
+    await revealAll(page, 8000);
     await parked(page);
-    await long(page, 'home.jpg', 3400);
+    await long(page, 'home.jpg', 7600);
     await page.close();
 }
 
@@ -100,16 +103,85 @@ const heroInfo = JSON.parse(fs.readFileSync(path.join(out, 'hero.json')));
 fs.writeFileSync(path.join(out, 'hero.json'), JSON.stringify({ ...heroInfo, frames, fps: 30 }, null, 2));
 console.log(`  drive: ${frames} frames`);
 
-// ── desktop services: the first screen ──
+// ── desktop services: the first screen, the long page, and the data the showcase draws with ──
 {
     const page = await open('/services', DESKTOP);
     await page.screenshot({ path: path.join(out, 'services.jpg'), type: 'jpeg', quality: 90 });
     console.log('  services.jpg');
+    // the page's data, as the server printed it (Inertia's <script data-page> in the HTML)
+    const html = await (await fetch(SITE + '/services')).text();
+    const props = JSON.parse(html.match(/<script data-page="app" type="application\/json">([\s\S]*?)<\/script>/)[1]).props;
+    // the photo the site shows for a service without its own image (lib/img.js)
+    const photos = JSON.parse(fs.readFileSync(path.join(here, '../../resources/js/lib/img.js'), 'utf8').match(/SERVICE_PHOTOS = (\[[^\]]+\])/)[1].replaceAll("'", '"'));
+    const text = (key) => props.siteContent?.[key]?.mk || props.siteContent?.[key]?.en || '';
+    const data = {
+        services: props.services.map((s) => ({ id: s.id, slug: s.slug, name: s.name_mk || s.name, from: Number(s.price_from), photo: photos[(s.id - 1) % photos.length] })),
+        features: [1, 2, 3, 4].map((n) => text(`showcase.feature${n}.title`)).filter(Boolean),
+        stats: ['cars', 'clients', 'years', 'rating'].map((k) => ({ value: text(`stats.${k}.value`), label: text(`stats.${k}.label`) })).filter((s) => s.value),
+        phone: text('footer.phone'),
+        tagline: text('hero.badge'),
+    };
+    fs.writeFileSync(path.join(out, 'data.json'), JSON.stringify(data, null, 2));
+    console.log(`  data.json: ${data.services.length} services, ${data.features.length} features, ${data.stats.length} stats`);
+    await revealAll(page, 4600);
+    await long(page, 'services-long.jpg', 4200);
+    await page.close();
+}
+
+// ── desktop portfolio: the first screen ──
+{
+    const page = await open('/portfolio', DESKTOP);
+    await sleep(800);
+    await page.screenshot({ path: path.join(out, 'portfolio.jpg'), type: 'jpeg', quality: 90 });
+    console.log('  portfolio.jpg');
+    await page.close();
+}
+
+// The page rectangle (css px) of the first element matching selector.
+const rectOf = (page, selector) => page.evaluate((sel) => {
+    const r = [...document.querySelectorAll(sel)].find((el) => el.offsetParent)?.getBoundingClientRect();
+    return r && { x: r.x + scrollX, y: r.y + scrollY, width: r.width, height: r.height };
+}, selector);
+
+// ── a service's page, and where its booking button is (the showcase's cursor clicks it) ──
+const DETAIL = 'ceramic-coating';
+{
+    const page = await open(`/services/${DETAIL}`, DESKTOP);
+    await sleep(800);
+    const button = await rectOf(page, 'a[href^="/contact?service="]');
+    await page.screenshot({ path: path.join(out, 'detail.jpg'), type: 'jpeg', quality: 90 });
+    fs.writeFileSync(path.join(out, 'detail.json'), JSON.stringify({ viewport: DESKTOP, button }, null, 2));
+    console.log('  detail.jpg, detail.json');
+    await page.close();
+}
+
+// ── the booking form, filled in as a visitor would (never sent) ──
+{
+    const page = await open('/contact?service=3', DESKTOP);
+    await revealAll(page, 2600);
+    for (const [id, value] of [['client_name', 'Марко Петровски'], ['client_phone', '+389 70 123 456'], ['client_email', 'marko@example.com'], ['vehicle_make', 'Audi'], ['vehicle_model', 'A6'], ['vehicle_year', '2021']]) {
+        await page.type(`#${id}`, value);
+    }
+    await page.evaluate(() => {
+        const set = (id, value, event) => { const el = document.getElementById(id); el.value = value; el.dispatchEvent(new Event(event, { bubbles: true })); };
+        const d = new Date(Date.now() + 9 * 864e5);
+        set('preferred_date', d.toISOString().slice(0, 10), 'input');
+        const time = document.getElementById('preferred_time');
+        set('preferred_time', time.options[Math.min(3, time.options.length - 1)].value, 'change');
+        document.activeElement?.blur();
+        window.scrollTo(0, 0);
+    });
+    await sleep(600);
+    const submit = await rectOf(page, 'form button[type="submit"]');
+    const form = await rectOf(page, 'form');
+    await long(page, 'contact.jpg', 2600);
+    fs.writeFileSync(path.join(out, 'contact.json'), JSON.stringify({ viewport: DESKTOP, submit, form }, null, 2));
+    console.log('  contact.json');
     await page.close();
 }
 
 // ── phones ──
-for (const [url, file, height] of [['/', 'm-home.jpg', 2600], ['/services', 'm-services.jpg', 2400], ['/contact', 'm-contact.jpg', 2400]]) {
+for (const [url, file, height] of [['/', 'm-home.jpg', 2600], ['/services', 'm-services.jpg', 2400], ['/contact', 'm-contact.jpg', 2400], [`/services/${DETAIL}`, 'm-detail.jpg', 2400], ['/portfolio', 'm-portfolio.jpg', 2400]]) {
     const page = await open(url, PHONE);
     await revealAll(page, height + 800);
     if (url === '/') await parked(page);

@@ -1,8 +1,9 @@
-// Renders the promo (promo.html + promo.js) to tools/promo/out/mdetailing-promo.mp4, 1920×1080 at
-// 60 fps. Run capture.mjs first: the promo shows those captures of the site.
+// Renders a composition to tools/promo/out/mdetailing-<name>.mp4, 1920×1080 at 60 fps. Run
+// capture.mjs first: the videos show those captures of the site.
 //
-//   node tools/promo/render.mjs                       the whole video
-//   node tools/promo/render.mjs --preview 1,5,13.9    just those moments, as PNGs in tools/promo/out
+//   node tools/promo/render.mjs                       the 15 s promo (promo.html + promo.js)
+//   node tools/promo/render.mjs --comp showcase       the minute-long showcase (showcase.html + .js)
+//   … --preview 1,5,13.9                              just those moments, as PNGs in tools/promo/out
 //
 // Needs Google Chrome and ffmpeg.
 import http from 'node:http';
@@ -16,7 +17,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
 const out = path.join(here, 'out');
 const FPS = 60;
-const DURATION = 15;
+const compArg = process.argv.indexOf('--comp');
+const comp = compArg > -1 ? process.argv[compArg + 1] : 'promo';
 
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.woff2': 'font/woff2' };
 const routes = [
@@ -28,7 +30,7 @@ const routes = [
 const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
     let file = null;
-    if (url === '/') file = path.join(here, 'promo.html');
+    if (url === '/') file = path.join(here, `${comp}.html`);
     else if (url === '/fonts.css') file = path.join(root, 'resources/css/fonts.css');
     else for (const [prefix, dir] of routes) if (url.startsWith(prefix)) file = path.join(dir, url.slice(prefix.length));
     if (!file || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
@@ -53,11 +55,12 @@ console.log('setup', await page.evaluate(() => window.setup()));
 if (preview) {
     for (const t of preview) {
         await page.evaluate((s) => window.renderAt(s), t);
-        await page.screenshot({ path: path.join(out, `preview-${t.toFixed(2)}.png`) });
+        await page.screenshot({ path: path.join(out, `preview-${comp}-${t.toFixed(2)}.png`) });
     }
     console.log(`previews in ${out}`);
 } else {
-    const file = path.join(out, 'mdetailing-promo.mp4');
+    const file = path.join(out, `mdetailing-${comp}.mp4`);
+    const DURATION = await page.evaluate(() => window.DURATION ?? 15);
     const ffmpeg = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'png', '-i', '-',
         '-vf', 'scale=out_color_matrix=bt709:out_range=tv,format=yuv420p',
         '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-tune', 'film', '-movflags', '+faststart',

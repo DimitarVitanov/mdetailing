@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<title>MDetailing showcase</title>
+<link rel="stylesheet" href="/fonts.css">
+<style>
+    :root {
+        --ink: #07080a; --ink-2: #0c0e11; --ink-3: #13161a; --signal: #ffc629; --led: #bfe9ff;
+        --chrome: #e6e9ed; --steel: #8a929c; --body: #b4bac2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); color: #fff; font-family: 'Onest', sans-serif; -webkit-font-smoothing: antialiased; }
+    .layer { position: absolute; inset: 0; }
+    .display { font-family: 'Unbounded', sans-serif; font-weight: 800; letter-spacing: -0.03em; text-transform: uppercase; line-height: 0.92; }
+    .sig { color: var(--signal); }
+    .mask { display: inline-block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; vertical-align: top; }
+    .mask.block { display: block; }
+    .inner { display: inline-block; transform-origin: 0 100%; will-change: transform; }
+    .mask.block > .inner { display: block; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 16px; font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--signal); }
+    .eyebrow::before { content: ''; width: 40px; height: 2px; background: var(--signal); box-shadow: 0 0 12px var(--signal); }
+    .eyebrow.steel { color: var(--steel); }
+    .eyebrow.steel::before { background: var(--steel); box-shadow: none; }
+    .led { height: 2px; background: linear-gradient(90deg, transparent, var(--led) 15%, var(--led) 85%, transparent); box-shadow: 0 0 16px rgb(191 233 255 / 0.65), 0 0 3px var(--led); transform-origin: 0 50%; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
+    /* background */
+    #hexgrid { inset: -80px; opacity: 0.045; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='41.57' height='72' viewBox='0 0 41.57 72'%3E%3Cpath d='M20.78 0L41.57 12V36L20.78 48L0 36V12Z M20.78 48V72' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E"); background-size: 62.4px 108px; -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 80%); }
+    .glow { position: absolute; border-radius: 50%; filter: blur(120px); }
+    #glowSignal { width: 1100px; height: 520px; left: 410px; top: 640px; background: rgb(255 198 41 / 0.16); }
+    #glowLed { width: 900px; height: 500px; left: -200px; top: -260px; background: rgb(191 233 255 / 0.10); }
+    #hexes polygon { fill: none; stroke: var(--led); stroke-width: 2; filter: drop-shadow(0 0 6px var(--led)); }
+
+    /* 1–2: words */
+    #words h1 { font-size: 104px; }
+    #words .row { display: block; white-space: nowrap; }
+    #words .w { margin: 0 0.12em; }
+    #online h2 { font-size: 150px; }
+    #onLed { width: 640px; margin-top: 36px; }
+    #onUrl { margin-top: 30px; font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.3em; color: var(--chrome); }
+
+    /* 3: brand */
+    .band { position: absolute; left: 0; white-space: nowrap; font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 120px; letter-spacing: -0.02em; text-transform: uppercase; color: transparent; -webkit-text-stroke: 1.5px rgb(230 233 237 / 0.18); }
+    .band b { color: var(--signal); -webkit-text-stroke: 0; font-size: 0.4em; vertical-align: middle; margin: 0 0.9em; opacity: 0.7; }
+    #band1 { top: 120px; }
+    #band2 { top: 790px; }
+    #brandLogo { width: 420px; filter: drop-shadow(0 0 50px rgb(255 198 41 / 0.35)); }
+    #brandEyebrow { margin-top: 34px; }
+
+    /* browser windows */
+    .stage3d { perspective: 2400px; perspective-origin: 50% 35%; }
+    .win { position: absolute; left: 50%; top: 50%; border-radius: 16px; overflow: hidden; background: var(--ink-2); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 60px 160px -30px rgb(0 0 0 / 0.95); transform-origin: 50% 50%; }
+    .bar { height: 46px; display: flex; align-items: center; padding: 0 20px; background: var(--ink-3); border-bottom: 1px solid rgb(255 255 255 / 0.06); position: relative; }
+    .dots { display: flex; gap: 9px; }
+    .dots i { width: 13px; height: 13px; border-radius: 50%; background: #ff5f57; opacity: 0.85; }
+    .dots i:nth-child(2) { background: #febc2e; }
+    .dots i:nth-child(3) { background: #28c840; }
+    .url { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 420px; height: 30px; border-radius: 8px; background: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: var(--body); letter-spacing: 0.02em; }
+    .url svg { width: 12px; height: 12px; }
+    .screen { position: relative; overflow: hidden; background: var(--ink); }
+    .screen > img, .scroll > img, .layer > img:not([id]) { display: block; width: 100%; }
+    .w1280 { width: 1280px; }
+    .w1280 .screen { height: 800px; }
+    #drive { position: absolute; object-fit: cover; object-position: 50% 72%; }
+    #heroTop { position: absolute; left: 0; top: 0; width: 100%; }
+    .pinned { position: absolute; left: 0; top: 0; width: 100%; height: 76px; overflow: hidden; }
+    .pinned img { width: 100%; display: block; }
+    .scroll { position: absolute; left: 0; top: 0; width: 100%; will-change: transform; }
+    #winGlow { position: absolute; left: 50%; top: 58%; width: 1300px; height: 380px; margin: -190px 0 0 -650px; border-radius: 50%; background: rgb(255 198 41 / 0.22); filter: blur(110px); }
+
+    /* 6: the page flowing past in 3D */
+    #flow { perspective: 1700px; perspective-origin: 50% 20%; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 45%, transparent 85%); }
+    #sheets { position: absolute; left: 50%; top: 50%; display: flex; gap: 90px; transform-style: preserve-3d; }
+    .sheet { width: 1000px; height: 3200px; overflow: hidden; border-radius: 14px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 40px 120px rgb(0 0 0 / 0.9); background: var(--ink); position: relative; }
+    .sheet img { width: 100%; display: block; }
+
+    /* 7: services */
+    #svcHead { position: absolute; left: 150px; top: 120px; }
+    #svcHead h2 { font-size: 92px; margin-top: 26px; }
+    #svcRow { position: absolute; top: 480px; left: 0; display: flex; gap: 28px; }
+    .card { width: 380px; background: var(--ink-3); border: 1px solid rgb(255 255 255 / 0.07); clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px); }
+    .card img { width: 100%; height: 238px; object-fit: cover; display: block; }
+    .card .body { padding: 24px 26px 28px; }
+    .card .num { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 15px; color: var(--signal); }
+    .card .name { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 25px; line-height: 1.05; letter-spacing: -0.02em; text-transform: uppercase; margin-top: 14px; min-height: 54px; }
+    .card .price { display: flex; align-items: baseline; justify-content: space-between; margin-top: 22px; padding-top: 18px; border-top: 1px solid rgb(255 255 255 / 0.08); }
+    .card .price span { font-size: 12px; letter-spacing: 0.2em; color: var(--steel); text-transform: uppercase; }
+    .card .price b { font-family: 'Unbounded', sans-serif; font-size: 22px; font-weight: 700; }
+
+    /* 8: cursor */
+    #cursor { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 40; }
+    #cursor svg { position: absolute; left: -4px; top: -2px; width: 34px; height: 34px; filter: drop-shadow(0 4px 8px rgb(0 0 0 / 0.6)); }
+    #ring { position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; border: 2px solid var(--signal); box-shadow: 0 0 18px rgb(255 198 41 / 0.6); }
+    .sheen { position: absolute; overflow: hidden; pointer-events: none; }
+    .sheen::after { content: ''; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 0 30%, rgb(255 255 255 / 0.55) 45%, transparent 60%); transform: translateX(var(--x, -120%)); }
+    #toast { position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%); display: flex; align-items: center; gap: 18px; padding: 20px 30px; background: var(--ink-3); border: 1px solid rgb(255 198 41 / 0.4); box-shadow: 0 20px 60px rgb(0 0 0 / 0.7), 0 0 30px rgb(255 198 41 / 0.15); clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+    #toast .tick { width: 44px; height: 44px; display: grid; place-items: center; background: var(--signal); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
+    #toast strong { display: block; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; }
+    #toast span { font-size: 15px; color: var(--body); }
+    .inwipe { position: absolute; inset: 0; }
+
+    /* 9: phones */
+    #phCap { position: absolute; left: 150px; top: 50%; transform: translateY(-50%); z-index: 2; }
+    #phCap h2 { font-size: 86px; margin-top: 30px; }
+    #phRail { position: absolute; left: 900px; top: 0; right: 0; bottom: 0; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%); }
+    #phRow { position: absolute; left: 0; top: 50%; display: flex; gap: 46px; margin-top: -338px; }
+    .phone { position: relative; width: 320px; height: 676px; border-radius: 54px; padding: 10px; background: linear-gradient(145deg, #2a2f36, #0c0e11 40%, #1b1f24); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.10), 0 50px 120px -20px rgb(0 0 0 / 0.95); flex-shrink: 0; }
+    .phone .screen { width: 300px; height: 656px; border-radius: 44px; }
+    .phone .screen > img { position: absolute; left: 0; top: 0; width: 100%; }
+    .phone .pin { position: absolute; left: 0; top: 0; width: 100%; height: 56px; overflow: hidden; }
+    .phone .pin img { width: 100%; display: block; }
+    .island { position: absolute; left: 50%; top: 11px; width: 96px; height: 28px; margin-left: -48px; border-radius: 14px; background: #000; z-index: 2; }
+
+    /* 10: photos */
+    #photos { display: flex; }
+    .panel { position: relative; flex: 1; overflow: hidden; border-right: 2px solid var(--ink); }
+    .panel img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .panel::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgb(7 8 10 / 0.85)); }
+    .panel .label { position: absolute; left: 44px; bottom: 50px; z-index: 2; }
+    .panel .label small { display: block; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 15px; color: var(--signal); margin-bottom: 12px; }
+    .panel .label p { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 38px; line-height: 1; letter-spacing: -0.02em; text-transform: uppercase; }
+    .panel .edge { position: absolute; left: 0; right: 0; height: 3px; background: var(--signal); box-shadow: 0 0 18px var(--signal); z-index: 3; }
+
+    /* 11: stats */
+    #stats { display: flex; align-items: center; justify-content: center; }
+    .stat { width: 450px; text-align: center; position: relative; }
+    .stat + .stat::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px; background: linear-gradient(180deg, transparent, var(--led), transparent); box-shadow: 0 0 12px var(--led); opacity: var(--sep, 0); }
+    .stat .val { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 84px; letter-spacing: -0.04em; line-height: 1; }
+    .stat .val i { font-style: normal; color: var(--signal); }
+    .stat .lab { margin-top: 26px; font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--steel); }
+
+    /* 12: features */
+    #feats { display: flex; align-items: center; justify-content: center; }
+    .feat { position: absolute; text-align: center; }
+    .feat .idx { font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.3em; color: var(--steel); }
+    .feat h3 { font-size: 84px; margin-top: 30px; }
+
+    /* 13: end card */
+    #end { padding-top: 160px; }
+    #end.center { justify-content: flex-start; }
+    #endLogo { width: 340px; height: auto; }
+    #endTag { margin-top: 30px; font-size: 30px; color: var(--body); }
+    #endBtn { margin-top: 44px; display: inline-flex; align-items: center; gap: 14px; padding: 24px 46px; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.18em; color: var(--ink); background: var(--signal); clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+    #endUrl { margin-top: 32px; font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.3em; color: var(--chrome); }
+    #credit { position: absolute; left: 0; right: 0; bottom: 70px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    #creditLed { width: 280px; }
+    #creditName { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 42px; letter-spacing: -0.01em; }
+
+    .wipe { position: absolute; inset: 0; }
+    #wipeLed { background: var(--led); }
+    #wipeInk { background: var(--ink); display: flex; align-items: center; justify-content: center; }
+    #wipeLogo { width: 200px; }
+</style>
+</head>
+<body>
+    <div class="layer" id="bg">
+        <div class="glow" id="glowLed"></div>
+        <div class="glow" id="glowSignal"></div>
+        <div class="layer" id="hexgrid"></div>
+    </div>
+    <svg class="layer" id="hexes" viewBox="0 0 1920 1080"></svg>
+
+    <!-- 1 -->
+    <div class="layer center" id="words">
+        <p class="eyebrow" id="wEyebrow">MDetailing · Струмица</p>
+        <h1 class="display" style="margin-top: 36px">
+            <span class="row"><span class="mask w"><span class="inner">Премиум</span></span><span class="mask w"><span class="inner">нега</span></span></span>
+            <span class="row sig"><span class="mask w"><span class="inner">за</span></span><span class="mask w"><span class="inner">секој</span></span><span class="mask w"><span class="inner">автомобил.</span></span></span>
+        </h1>
+    </div>
+    <!-- 2 -->
+    <div class="layer center" id="online">
+        <h2 class="display"><span class="mask block"><span class="inner" id="on1">Сега <span class="sig">онлајн.</span></span></span></h2>
+        <div class="led" id="onLed"></div>
+        <p id="onUrl">MDETAILING.MK</p>
+    </div>
+    <!-- 3 -->
+    <div class="layer" id="brand">
+        <div class="band" id="band1"></div>
+        <div class="band" id="band2"></div>
+        <div class="layer center">
+            <img id="brandLogo" src="/img/brand/logo-960.webp" alt="">
+            <p class="eyebrow" id="brandEyebrow">Премиум авто деталинг</p>
+        </div>
+    </div>
+
+    <!-- 4–5: browser windows -->
+    <div class="layer stage3d" id="stage">
+        <div id="winGlow"></div>
+        <div class="win" id="winP" style="width: 820px">
+            <div class="bar" style="height:34px"><span class="dots"><i></i><i></i><i></i></span><div class="url" style="width:260px;height:20px;font-size:10px">mdetailing.mk/portfolio</div></div>
+            <div class="screen" style="height: 512px"><img src="/cap/portfolio.jpg" alt=""></div>
+        </div>
+        <div class="win" id="winS" style="width: 1000px">
+            <div class="bar" style="height:38px"><span class="dots"><i></i><i></i><i></i></span><div class="url" style="width:300px;height:22px;font-size:11px">mdetailing.mk/services</div></div>
+            <div class="screen" style="height: 625px"><div class="scroll" id="sScroll"><img src="/cap/services-long.jpg" alt=""></div></div>
+        </div>
+        <div class="win w1280" id="win">
+            <div class="bar"><span class="dots"><i></i><i></i><i></i></span>
+                <div class="url"><svg viewBox="0 0 12 12"><path d="M3.5 5V3.6a2.5 2.5 0 015 0V5" fill="none" stroke="#8a929c" stroke-width="1.3"/><rect x="2" y="5" width="8" height="6" rx="1.4" fill="#8a929c"/></svg>mdetailing.mk</div>
+            </div>
+            <div class="screen">
+                <div class="layer" id="heroLayer"><img id="drive" alt=""><img id="heroTop" src="/cap/hero.png" alt=""></div>
+                <div class="layer" id="homeLayer"><div class="scroll" id="hScroll"><img src="/cap/home.jpg" alt=""></div><div class="pinned"><img src="/cap/home.jpg" alt=""></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="layer" id="flow">
+        <div id="sheets">
+            <div class="sheet"><div class="scroll" id="flowA"><img src="/cap/home.jpg" alt=""></div></div>
+            <div class="sheet"><div class="scroll" id="flowB"><img src="/cap/services-long.jpg" alt=""></div></div>
+        </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="layer" id="svc">
+        <div id="svcHead">
+            <p class="eyebrow" id="svcEyebrow">Што нудиме</p>
+            <h2 class="display"><span class="mask block"><span class="inner" id="svc1">Премиум</span></span><span class="mask block"><span class="inner sig" id="svc2">услуги</span></span></h2>
+        </div>
+        <div id="svcRow"></div>
+    </div>
+
+    <!-- 8 -->
+    <div class="layer stage3d" id="book">
+        <div class="win w1280" id="winD">
+            <div class="bar"><span class="dots"><i></i><i></i><i></i></span><div class="url" id="dUrl">mdetailing.mk/services/ceramic-coating</div></div>
+            <div class="screen" id="dScreen">
+                <div class="layer" id="detailLayer"><img src="/cap/detail.jpg" alt=""></div>
+                <div class="layer" id="contactLayer"><div class="scroll" id="cScroll"><img src="/cap/contact.jpg" alt=""></div><div class="pinned"><img src="/cap/contact.jpg" alt=""></div></div>
+                <div class="sheen" id="sheen"></div>
+                <div class="inwipe" id="inLed" style="background: var(--led)"></div>
+                <div class="inwipe" id="inInk" style="background: var(--ink)"></div>
+                <div id="toast"><span class="tick"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M4 11.5l4.5 4.5L18 6.5" fill="none" stroke="#07080a" stroke-width="3"/></svg></span><div><strong id="toastTitle"></strong><span id="toastText">Ќе ви одговориме во рок од 24 часа.</span></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9 -->
+    <div class="layer" id="phones">
+        <div id="phCap">
+            <p class="eyebrow" id="phEyebrow">Мобилно искуство</p>
+            <h2 class="display"><span class="mask block"><span class="inner" id="ph1">Совршен на</span></span><span class="mask block"><span class="inner sig" id="ph2">секој екран.</span></span></h2>
+        </div>
+        <div id="phRail"><div id="phRow"></div></div>
+    </div>
+
+    <!-- 10 -->
+    <div class="layer" id="photos"></div>
+
+    <!-- 11 -->
+    <div class="layer" id="stats"></div>
+
+    <!-- 12 -->
+    <div class="layer" id="feats"></div>
+
+    <!-- 13 -->
+    <div class="layer center" id="end">
+        <img id="endLogo" src="/img/brand/logo-960.webp" alt="">
+        <p id="endTag"><span class="mask block"><span class="inner" id="endTagIn">Премиум авто деталинг — сега онлајн.</span></span></p>
+        <span id="endBtn">ЗАКАЖЕТЕ ТЕРМИН <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="#07080a" stroke-width="2"/></svg></span>
+        <p id="endUrl">MDETAILING.MK</p>
+        <div id="credit">
+            <div class="led" id="creditLed"></div>
+            <p class="eyebrow steel" id="creditBy">Изработено од</p>
+            <p id="creditName"><span class="mask block"><span class="inner" id="creditNameIn">nyxeon.io</span></span></p>
+        </div>
+    </div>
+
+    <div id="cursor"><div id="ring"></div><svg viewBox="0 0 24 24"><path d="M3 2l7.5 19 2.6-7.9L21 10.5z" fill="#fff" stroke="#07080a" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+
+    <div class="wipe" id="wipeLed"></div>
+    <div class="wipe" id="wipeInk"><img id="wipeLogo" src="/img/brand/logo-480.webp" alt=""></div>
+
+    <script type="module" src="/promo/showcase.js"></script>
+</body>
+</html>

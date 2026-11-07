@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<title>MDetailing promo</title>
+<link rel="stylesheet" href="/fonts.css">
+<style>
+    :root {
+        --ink: #07080a; --ink-2: #0c0e11; --ink-3: #13161a; --signal: #ffc629; --led: #bfe9ff;
+        --chrome: #e6e9ed; --steel: #8a929c; --body: #b4bac2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ink); color: #fff; font-family: 'Onest', sans-serif; -webkit-font-smoothing: antialiased; }
+    .layer { position: absolute; inset: 0; }
+    .display { font-family: 'Unbounded', sans-serif; font-weight: 800; letter-spacing: -0.03em; text-transform: uppercase; line-height: 0.92; }
+    .sig { color: var(--signal); }
+    .outline { -webkit-text-stroke: 2px color-mix(in srgb, var(--chrome) 55%, transparent); color: transparent; }
+    .mask { display: block; overflow: hidden; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+    .inner { display: block; transform-origin: 0 100%; will-change: transform; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 16px; font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--signal); }
+    .eyebrow::before { content: ''; width: 40px; height: 2px; background: var(--signal); box-shadow: 0 0 12px var(--signal); }
+    .eyebrow.steel { color: var(--steel); }
+    .eyebrow.steel::before { background: var(--steel); box-shadow: none; }
+    .led { height: 2px; background: linear-gradient(90deg, transparent, var(--led) 15%, var(--led) 85%, transparent); box-shadow: 0 0 16px rgb(191 233 255 / 0.65), 0 0 3px var(--led); transform-origin: 0 50%; }
+
+    /* background */
+    #hexgrid { inset: -80px; opacity: 0.045; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='41.57' height='72' viewBox='0 0 41.57 72'%3E%3Cpath d='M20.78 0L41.57 12V36L20.78 48L0 36V12Z M20.78 48V72' fill='none' stroke='%23ffffff' stroke-width='1'/%3E%3C/svg%3E"); background-size: 62.4px 108px; -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 30%, transparent 80%); }
+    .glow { position: absolute; border-radius: 50%; filter: blur(120px); }
+    #glowSignal { width: 1100px; height: 520px; left: 410px; top: 640px; background: rgb(255 198 41 / 0.16); }
+    #glowLed { width: 900px; height: 500px; left: -200px; top: -260px; background: rgb(191 233 255 / 0.10); }
+
+    /* scene 1: the headline */
+    #hexes { inset: 0; }
+    #hexes polygon { fill: none; stroke: var(--led); stroke-width: 2; filter: drop-shadow(0 0 6px var(--led)); }
+    #title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 34px; }
+    #title h1 { font-size: 100px; }
+    #online { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    #online h2 { font-size: 150px; }
+    #onLed { width: 620px; margin-top: 34px; }
+    #onUrl { margin-top: 30px; font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.3em; color: var(--chrome); }
+
+    /* scene 2: browser windows */
+    #stage { perspective: 2400px; perspective-origin: 50% 35%; }
+    .win { position: absolute; left: 50%; top: 50%; border-radius: 16px; overflow: hidden; background: var(--ink-2); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 60px 160px -30px rgb(0 0 0 / 0.95); transform-origin: 50% 50%; }
+    .bar { height: 46px; display: flex; align-items: center; padding: 0 20px; background: var(--ink-3); border-bottom: 1px solid rgb(255 255 255 / 0.06); position: relative; }
+    .dots { display: flex; gap: 9px; }
+    .dots i { width: 13px; height: 13px; border-radius: 50%; background: #ff5f57; opacity: 0.85; }
+    .dots i:nth-child(2) { background: #febc2e; }
+    .dots i:nth-child(3) { background: #28c840; }
+    .url { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 420px; height: 30px; border-radius: 8px; background: var(--ink); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; color: var(--body); letter-spacing: 0.02em; }
+    .url svg { width: 12px; height: 12px; }
+    .screen { position: relative; overflow: hidden; background: var(--ink); }
+    #win { width: 1280px; }
+    #win .screen { height: 800px; }
+    #drive { position: absolute; left: 0; width: 100%; }
+    #heroTop, #homeImg { position: absolute; left: 0; top: 0; width: 100%; }
+    #pinned { position: absolute; left: 0; top: 0; width: 100%; height: 76px; overflow: hidden; }
+    #pinned img { width: 100%; display: block; }
+    #pinned::after { content: ''; position: absolute; inset: auto 0 0 0; height: 1px; background: rgb(255 255 255 / 0.06); }
+    #win2 { width: 760px; }
+    #win2 .bar { height: 30px; padding: 0 14px; }
+    #win2 .dots i { width: 9px; height: 9px; }
+    #win2 .url { width: 240px; height: 18px; font-size: 9px; border-radius: 5px; }
+    #win2 .screen { height: 475px; }
+    #win2 .screen img { width: 100%; display: block; }
+    #winGlow { position: absolute; left: 50%; top: 58%; width: 1300px; height: 380px; margin: -190px 0 0 -650px; border-radius: 50%; background: rgb(255 198 41 / 0.22); filter: blur(110px); }
+
+    /* scene 3: phones */
+    #cap { position: absolute; left: 150px; top: 50%; transform: translateY(-50%); }
+    #cap h2 { font-size: 86px; margin-top: 30px; }
+    .phone { position: absolute; top: 50%; width: 320px; height: 676px; margin-top: -338px; border-radius: 54px; padding: 10px; background: linear-gradient(145deg, #2a2f36, #0c0e11 40%, #1b1f24); box-shadow: 0 0 0 1px rgb(255 255 255 / 0.10), 0 50px 120px -20px rgb(0 0 0 / 0.95); }
+    .phone .screen { width: 300px; height: 656px; border-radius: 44px; }
+    .phone .screen img { position: absolute; left: 0; top: 0; width: 100%; }
+    .phone .pin { position: absolute; left: 0; top: 0; width: 100%; height: 56px; overflow: hidden; }
+    .island { position: absolute; left: 50%; top: 11px; width: 96px; height: 28px; margin-left: -48px; border-radius: 14px; background: #000; z-index: 2; }
+
+    /* scene 4: the end card */
+    #end { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 168px; }
+    #endLogo { width: 330px; height: auto; }
+    #endTag { margin-top: 30px; font-size: 30px; color: var(--body); }
+    #endBtn { margin-top: 46px; display: inline-flex; align-items: center; gap: 14px; padding: 24px 46px; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.18em; color: var(--ink); background: var(--signal); clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+    #endUrl { margin-top: 34px; font-family: 'Unbounded', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.3em; color: var(--chrome); }
+    #credit { position: absolute; left: 0; right: 0; bottom: 72px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    #creditLed { width: 280px; }
+    #creditName { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 42px; letter-spacing: -0.01em; }
+
+    /* the site's page wipe: an LED panel, then a dark one with the logo */
+    .wipe { position: absolute; inset: 0; }
+    #wipeLed { background: var(--led); }
+    #wipeInk { background: var(--ink); display: flex; align-items: center; justify-content: center; }
+    #wipeLogo { width: 200px; }
+</style>
+</head>
+<body>
+    <div class="layer" id="bg">
+        <div class="glow" id="glowLed"></div>
+        <div class="glow" id="glowSignal"></div>
+        <div class="layer" id="hexgrid"></div>
+    </div>
+
+    <svg class="layer" id="hexes" viewBox="0 0 1920 1080"></svg>
+
+    <div class="layer" id="title">
+        <p class="eyebrow" id="eyebrow">Премиум авто деталинг</p>
+        <h1 class="display">
+            <span class="mask"><span class="inner" id="l1">Премиум нега</span></span>
+            <span class="mask"><span class="inner sig" id="l2">за секој автомобил.</span></span>
+        </h1>
+    </div>
+
+    <div class="layer" id="online">
+        <h2 class="display"><span class="mask"><span class="inner" id="on1">Сега <span class="sig">онлајн.</span></span></span></h2>
+        <div class="led" id="onLed"></div>
+        <p id="onUrl">MDETAILING.MK</p>
+    </div>
+
+    <div class="layer" id="stage">
+        <div id="winGlow"></div>
+        <div class="win" id="win2">
+            <div class="bar"><span class="dots"><i></i><i></i><i></i></span><div class="url">mdetailing.mk/services</div></div>
+            <div class="screen"><img src="/cap/services.jpg" alt=""></div>
+        </div>
+        <div class="win" id="win">
+            <div class="bar"><span class="dots"><i></i><i></i><i></i></span>
+                <div class="url"><svg viewBox="0 0 12 12"><path d="M3.5 5V3.6a2.5 2.5 0 015 0V5" fill="none" stroke="#8a929c" stroke-width="1.3"/><rect x="2" y="5" width="8" height="6" rx="1.4" fill="#8a929c"/></svg>mdetailing.mk</div>
+            </div>
+            <div class="screen" id="screen">
+                <div class="layer" id="heroLayer">
+                    <img id="drive" alt="">
+                    <img id="heroTop" src="/cap/hero.png" alt="">
+                </div>
+                <div class="layer" id="homeLayer">
+                    <img id="homeImg" src="/cap/home.jpg" alt="">
+                    <div id="pinned"><img src="/cap/home.jpg" alt=""></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layer" id="phones">
+        <div id="cap">
+            <p class="eyebrow" id="capEyebrow">Брз на секој уред</p>
+            <h2 class="display">
+                <span class="mask"><span class="inner" id="c1">Совршен на</span></span>
+                <span class="mask"><span class="inner sig" id="c2">секој екран.</span></span>
+            </h2>
+        </div>
+        <div class="phone" id="p1"><div class="screen"><span class="island"></span><img src="/cap/m-services.jpg" alt=""><div class="pin"><img src="/cap/m-services.jpg" alt=""></div></div></div>
+        <div class="phone" id="p2"><div class="screen"><span class="island"></span><img src="/cap/m-home.jpg" alt=""><div class="pin"><img src="/cap/m-home.jpg" alt=""></div></div></div>
+        <div class="phone" id="p3"><div class="screen"><span class="island"></span><img src="/cap/m-contact.jpg" alt=""><div class="pin"><img src="/cap/m-contact.jpg" alt=""></div></div></div>
+    </div>
+
+    <div class="layer" id="end">
+        <img id="endLogo" src="/img/brand/logo-480.webp" alt="">
+        <p id="endTag"><span class="mask"><span class="inner" id="endTagIn">Премиум авто деталинг — сега онлајн.</span></span></p>
+        <span id="endBtn">ЗАКАЖЕТЕ ТЕРМИН <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="#07080a" stroke-width="2"/></svg></span>
+        <p id="endUrl">MDETAILING.MK</p>
+        <div id="credit">
+            <div class="led" id="creditLed"></div>
+            <p class="eyebrow steel" id="creditBy">Изработено од</p>
+            <p id="creditName"><span class="mask"><span class="inner" id="creditNameIn">nyxeon.io</span></span></p>
+        </div>
+    </div>
+
+    <div class="wipe" id="wipeLed"></div>
+    <div class="wipe" id="wipeInk"><img id="wipeLogo" src="/img/brand/logo-480.webp" alt=""></div>
+
+    <script type="module" src="/promo/promo.js"></script>
+</body>
+</html>

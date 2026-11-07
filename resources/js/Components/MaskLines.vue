@@ -6,19 +6,14 @@ import { whenReady } from '@/lib/intro';
 
 // A heading whose lines rise one by one out of their own masks.
 //   <MaskLines tag="h2" :lines="['Premium', { text: 'Car Care', class: 'text-signal' }]" />
-// `hero` waits for the intro / page wipe instead of the scroll position; `manual` waits for the
-// parent to call reveal().
+// `hero` waits for the intro / page wipe instead of the scroll position.
 const props = defineProps({
     lines: { type: Array, required: true },
     tag: { type: String, default: 'h2' },
     stagger: { type: Number, default: 110 },
     delay: { type: Number, default: 0 },
     hero: { type: Boolean, default: false },
-    manual: { type: Boolean, default: false },
 });
-
-const reveal = () => requestAnimationFrame(() => el.value?.classList.add('is-revealed'));
-defineExpose({ reveal });
 
 const el = ref(null);
 let cancel = () => {};
@@ -26,7 +21,6 @@ let cancel = () => {};
 const line = (item) => (typeof item === 'string' ? { text: item } : item);
 
 onMounted(() => {
-    if (props.manual) return;
     if (props.hero || reducedMotion()) {
         cancel = whenReady(() => requestAnimationFrame(() => el.value?.classList.add('is-revealed')));
     } else {

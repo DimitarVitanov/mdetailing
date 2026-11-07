@@ -40,6 +40,9 @@
     {{-- The page's main photo, passed by its controller; widths match the <img> srcset. --}}
     <link rel="preload" as="image" imagesrcset="{{ collect($preloadImage['widths'])->map(fn ($w) => "{$preloadImage['base']}-{$w}.webp {$w}w")->implode(', ') }}" imagesizes="{{ $preloadImage['sizes'] }}" fetchpriority="high">
     @endif
+    @foreach ($preloadPosters ?? [] as $poster)
+    <link rel="preload" as="image" href="{{ $poster['href'] }}" media="{{ $poster['media'] }}" fetchpriority="high">
+    @endforeach
 
     <style>html,body{background:#07080a;color:#fff}</style>
     {{-- Vite's tags for app.js and the page's own chunk (so it downloads alongside app.js). The

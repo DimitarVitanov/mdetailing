@@ -1,23 +1,24 @@
 <template>
-    <!-- ============ HERO: the car drives in (3D, lib/carScene.js) ============ -->
-    <section class="relative min-h-[100svh] overflow-hidden grain">
-        <HeroCar3D @arrived="arrive" />
-
-        <!-- The words wait for the car to stop (the scene's 'arrived') and rise in centred above it. -->
-        <div class="relative container-x min-h-[100svh] flex flex-col items-center text-center pt-28 sm:pt-32 pb-24">
-            <div class="relative max-w-4xl">
-                <p class="hero-fade eyebrow mb-7 relative" style="--d: 0ms">{{ c('hero.badge') }}</p>
-                <MaskLines ref="headline" tag="h1" manual :delay="100" class="relative font-display text-[10.5vw] sm:text-[8vw] lg:text-[5.6vw] 2xl:text-[6.4rem] leading-[0.9] drop-shadow-[0_6px_30px_rgba(0,0,0,0.6)]"
-                           :lines="[c('hero.title1'), { text: c('hero.title2'), class: 'text-signal' }, { text: c('hero.title3'), class: 'text-outline' }]" />
-                <p class="hero-fade relative mx-auto mt-7 text-body text-base sm:text-lg leading-relaxed max-w-xl" style="--d: 550ms">{{ c('hero.subtitle') }}</p>
-                <div class="hero-fade relative mt-8 flex flex-col sm:flex-row sm:justify-center gap-4" style="--d: 700ms">
-                    <Link href="/contact" class="btn-signal">{{ c('hero.cta') }} <Icon name="arrow-right" :size="15" /></Link>
-                    <Link href="/services" class="btn-ghost">{{ c('hero.ctaSecondary') }}</Link>
-                </div>
-            </div>
+    <!-- ============ HERO: the car drives in (a video of the 3D scene, tools/car-render) ============ -->
+    <!-- The words sit above and below the drive, never on top of the car, and come in as soon as
+         the intro has gone. No grain overlay here: laid over a playing video it is repainted on
+         every frame, which costs seconds of main thread on a phone. -->
+    <section class="relative overflow-hidden">
+        <div class="relative z-10 container-x pt-28 sm:pt-32 lg:pt-36 text-center">
+            <p class="hero-fade eyebrow mb-6" style="--d: 0ms">{{ c('hero.badge') }}</p>
+            <MaskLines tag="h1" hero :delay="100" class="font-display text-[10.5vw] sm:text-[7.5vw] lg:text-[4.6vw] 2xl:text-[5.6rem] leading-[0.92] lg:[&_.mask-line]:inline-block"
+                       :lines="[c('hero.title1'), { text: c('hero.title2'), class: 'text-signal' }, { text: c('hero.title3'), class: 'text-outline' }]" />
         </div>
 
-        <p class="hero-fade absolute right-6 bottom-6 hidden lg:flex items-center gap-3 font-display text-[9px] tracking-[0.3em] text-steel" style="--d: 1000ms">{{ t('hero.scroll') }} <span class="w-10 h-px bg-led shadow-[0_0_8px_var(--color-led)]"></span></p>
+        <HeroDrive class="-mt-2 sm:-mt-8 lg:-mt-20" />
+
+        <div class="relative z-10 container-x -mt-4 lg:mt-0 pb-20 lg:pb-24 flex flex-col lg:flex-row items-center lg:items-end lg:justify-between gap-7 text-center lg:text-left">
+            <p class="hero-fade text-body text-base sm:text-lg leading-relaxed max-w-xl" style="--d: 450ms">{{ c('hero.subtitle') }}</p>
+            <div class="hero-fade flex flex-col sm:flex-row gap-4 shrink-0" style="--d: 600ms">
+                <Link href="/contact" class="btn-signal">{{ c('hero.cta') }} <Icon name="arrow-right" :size="15" /></Link>
+                <Link href="/services" class="btn-ghost">{{ c('hero.ctaSecondary') }}</Link>
+            </div>
+        </div>
     </section>
 
     <!-- ============ LED TICKER ============ -->
@@ -139,10 +140,10 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import MainLayout from '@/Layouts/MainLayout.vue';
-import HeroCar3D from '@/Components/HeroCar3D.vue';
+import HeroDrive from '@/Components/HeroDrive.vue';
 import Gauge from '@/Components/Gauge.vue';
 import HexFeatures from '@/Components/HexFeatures.vue';
 import Icon from '@/Components/Icon.vue';
@@ -152,10 +153,10 @@ import Photo from '@/Components/Photo.vue';
 import ProcessLine from '@/Components/ProcessLine.vue';
 import ScrubWords from '@/Components/ScrubWords.vue';
 import ServiceRail from '@/Components/ServiceRail.vue';
-import Sparks from '@/Components/SparksLazy.js';
 import VelocityMarquee from '@/Components/VelocityMarquee.vue';
 import { useI18n } from '@/i18n.js';
 import { imageFor, photo, portfolioPhoto } from '@/lib/img.js';
+import { whenReady } from '@/lib/intro';
 
 defineOptions({ layout: MainLayout });
 
@@ -180,24 +181,13 @@ const statementHighlights = ['mdetailing', 'детално', 'керамичка
 
 const gallery = computed(() => props.portfolio.map((item) => ({ image: imageFor(item.after_image || item.before_image, portfolioPhoto(item)), alt: localized(item, 'title'), label: localized(item, 'title'), category: item.category })));
 
-const headline = ref(null);
-let fallback = null;
-let arrived = false;
+let cancelHero = () => {};
 
-// The headline and the rest of the hero text come in once the car has stopped.
-function arrive() {
-    if (arrived) return;
-    arrived = true;
-    clearTimeout(fallback);
-    headline.value?.reveal();
-    document.querySelectorAll('.hero-fade').forEach((el) => el.classList.add('is-in'));
-}
-
+// The rest of the hero text follows the headline in once the intro has let go of the screen.
 onMounted(() => {
-    // Should the scene not report back (it always does), the words come in anyway.
-    fallback = setTimeout(arrive, 4500);
+    cancelHero = whenReady(() => requestAnimationFrame(() => document.querySelectorAll('.hero-fade').forEach((el) => el.classList.add('is-in'))));
 });
-onBeforeUnmount(() => clearTimeout(fallback));
+onBeforeUnmount(() => cancelHero());
 </script>
 
 <style scoped>

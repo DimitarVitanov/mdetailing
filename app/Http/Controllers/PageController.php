@@ -26,7 +26,11 @@ class PageController extends Controller
             'portfolio' => PortfolioItem::active()->featured()->orderBy('sort_order')->limit(6)->get(self::PORTFOLIO_CARD),
             'testimonials' => Testimonial::active()->featured()->latest()->limit(6)->get(self::TESTIMONIAL_CARD),
             'seo' => Seo::forPage('home'),
-        ]);
+        ])->withViewData(['preloadPosters' => [
+            // the first frames of the drive-in video (HeroDrive.vue): one per stage shape
+            ['href' => '/video/drive-tall-first.webp', 'media' => '(max-width: 1023px)'],
+            ['href' => '/video/drive-wide-first.webp', 'media' => '(min-width: 1024px)'],
+        ]]);
     }
 
     public function services()

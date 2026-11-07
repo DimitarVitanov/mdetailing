@@ -15,6 +15,9 @@ import { whenReady } from '@/lib/intro';
 // shown instead.
 const WIDE = '(min-width: 1024px)';
 const GIVE_UP_MS = 8000;
+// Bumped whenever the videos are rendered again, so no browser keeps an old copy (the posters'
+// preload in PageController::home carries the same version).
+const V = '?v=2';
 
 const video = ref(null);
 const state = ref('poster'); // poster → playing, or still
@@ -52,7 +55,7 @@ onMounted(() => {
     v.addEventListener('canplaythrough', () => { canPlay = true; play(); }, { once: true });
     v.addEventListener('error', still, { once: true });
     v.muted = true;
-    v.src = `/video/drive-${matchMedia(WIDE).matches ? 'wide' : 'tall'}.mp4`;
+    v.src = `/video/drive-${matchMedia(WIDE).matches ? 'wide' : 'tall'}.mp4${V}`;
     v.load();
     timer = setTimeout(still, GIVE_UP_MS);
     cancel = whenReady(() => { uncovered = true; play(); });
@@ -74,8 +77,8 @@ onBeforeUnmount(() => {
 <template>
     <div class="relative w-full aspect-[944/800] max-h-[64vh] lg:aspect-[1920/648] lg:max-h-[70vh] overflow-hidden bg-ink" aria-hidden="true">
         <picture>
-            <source :media="WIDE" :srcset="`/video/drive-wide-${state === 'still' ? 'last' : 'first'}.webp`" width="1920" height="648">
-            <img :src="`/video/drive-tall-${state === 'still' ? 'last' : 'first'}.webp`" width="944" height="800" alt="" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover">
+            <source :media="WIDE" :srcset="`/video/drive-wide-${state === 'still' ? 'last' : 'first'}.webp${V}`" width="1920" height="648">
+            <img :src="`/video/drive-tall-${state === 'still' ? 'last' : 'first'}.webp${V}`" width="944" height="800" alt="" fetchpriority="high" class="absolute inset-0 w-full h-full object-cover">
         </picture>
         <!-- transparent until its first frame is in, then that frame covers the identical image -->
         <video ref="video" muted playsinline preload="auto" disablepictureinpicture disableremoteplayback tabindex="-1"

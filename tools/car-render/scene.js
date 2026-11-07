@@ -2,9 +2,10 @@
 // never runs this: it plays the result, public/video/drive-*.mp4).
 //
 // A night road with lane markings and LED rails. The car's headlights show far away; it drives
-// in from the left lane to the middle, brakes with a nose dip, the studio lights flicker on, and
-// an inspection light sweeps left to right leaving the paint glossy behind it while the camera
-// pushes in.
+// in fast from the left lane to the middle, brakes with a nose dip, the studio lights flicker on,
+// and an inspection light sweeps right to left leaving the paint glossy behind it, while the
+// camera swings round from the right to the car's left side, where MDETAILING writes itself on
+// the door in yellow.
 //
 // window.setup({ width, height, fov, fill: [w, h] }) → loads and frames the scene
 // window.renderAt(seconds)                          → renders that moment
@@ -14,6 +15,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -21,10 +23,11 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const INK = new THREE.Color(0x07080a);
 const LED = new THREE.Color(0xbfe9ff);
+const SIGNAL = new THREE.Color(0xffc629);
 
 // Timeline (seconds)
-export const T = { brakeAt: 2.8, stop: 3.8, lightsOn: 3.9, sweepFrom: 4.35, sweepTo: 5.55, end: 6.4 };
-const DIST = 95; // how far away the car starts (m)
+export const T = { brakeAt: 1.2, stop: 2.4, lightsOn: 2.5, sweepFrom: 2.85, sweepTo: 3.95, writeFrom: 3.55, writeTo: 4.75, end: 5.3 };
+const DIST = 70; // how far away the car starts (m)
 const START_X = -2.1; // the left lane, seen from the camera
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
@@ -41,7 +44,8 @@ function seeded(seed) {
 let renderer, composer, scene, camera, car, curve;
 let wheels = [];
 let wheelBase = [];
-let sweepUniform = { value: -10 };
+let sweepUniform = { value: 10 };
+let writeUniform = { value: -10 };
 let headSpots = [], headSprites = [];
 let key, hemi, inspect;
 let cfg;
@@ -144,7 +148,7 @@ function glowTexture() {
     return tex;
 }
 
-// The paint: dull and dusty until the inspection light has passed (world x < uSweep), then
+// The paint: dull and dusty until the inspection light has passed (world x > uSweep), then
 // showroom gloss. A per-pixel blend, so the clean area follows the light across the car.
 function paintMaterial() {
     const m = new THREE.MeshPhysicalMaterial({ color: 0xb80d18, metalness: 0.6, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.02 });
@@ -156,12 +160,57 @@ function paintMaterial() {
         shader.fragmentShader = shader.fragmentShader
             .replace('#include <common>', '#include <common>\nuniform float uSweep;\nvarying vec3 vWorldPos;\nfloat cleanAmt;')
             .replace('#include <color_fragment>', `#include <color_fragment>
-                cleanAmt = smoothstep(uSweep + 0.35, uSweep - 0.35, vWorldPos.x);
+                cleanAmt = smoothstep(uSweep - 0.35, uSweep + 0.35, vWorldPos.x);
                 vec3 dusty = mix(diffuseColor.rgb, vec3(dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11))), 0.5) * 0.42;
                 diffuseColor.rgb = mix(dusty, diffuseColor.rgb, cleanAmt);`)
             .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(0.78, roughnessFactor, cleanAmt);')
             .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(0.1, metalnessFactor, cleanAmt);')
             .replace('#include <lights_physical_fragment>', '#include <lights_physical_fragment>\nmaterial.clearcoat *= cleanAmt;');
+    };
+    return m;
+}
+
+// MDETAILING in the site's display face, yellow on transparent.
+async function letteringTexture() {
+    const face = new FontFace('Unbounded', 'url(/fonts/unbounded-latin.woff2)', { weight: '500 800' });
+    document.fonts.add(await face.load());
+    const c = document.createElement('canvas');
+    c.width = 2048;
+    c.height = 360;
+    const g = c.getContext('2d');
+    g.fillStyle = '#ffc629';
+    g.font = '800 236px Unbounded';
+    g.letterSpacing = '6px';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText('MDETAILING', c.width / 2, c.height / 2 + 10);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    return tex;
+}
+
+// The lettering on the car's left door. It is drawn on from the rear to the front (world z <
+// uWrite) behind a bright yellow edge, like a scan line printing it.
+function letteringMaterial(map) {
+    const m = new THREE.MeshStandardMaterial({
+        map, emissiveMap: map, emissive: SIGNAL, emissiveIntensity: 0.55, roughness: 0.3, metalness: 0.1,
+        transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4,
+    });
+    m.onBeforeCompile = (shader) => {
+        shader.uniforms.uWrite = writeUniform;
+        shader.vertexShader = shader.vertexShader
+            .replace('#include <common>', '#include <common>\nvarying vec3 vWorldPos;')
+            .replace('#include <project_vertex>', '#include <project_vertex>\nvWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+        shader.fragmentShader = shader.fragmentShader
+            .replace('#include <common>', '#include <common>\nuniform float uWrite;\nvarying vec3 vWorldPos;\nfloat written;\nfloat edgeGlow;')
+            .replace('#include <map_fragment>', `#include <map_fragment>
+                written = smoothstep(uWrite + 0.03, uWrite - 0.03, vWorldPos.z);
+                edgeGlow = 1.0 - smoothstep(0.0, 0.16, abs(vWorldPos.z - uWrite));
+                float ink = diffuseColor.a;
+                diffuseColor.a = ink * max(written, edgeGlow);`)
+            .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+                totalEmissiveRadiance = totalEmissiveRadiance * written + vec3(1.0, 0.82, 0.3) * edgeGlow * emissiveColor.a * 7.0;`);
     };
     return m;
 }
@@ -227,7 +276,7 @@ window.setup = async (options) => {
     // the key light: a spot straight over the parking place, so the car stands in a pool of
     // light and the road around it stays dark
     key = new THREE.SpotLight(0xffffff, 0, 0, 0.34, 0.75, 0);
-    key.position.set(1.2, 10, 1.5);
+    key.position.set(-1.6, 10, 1.5);
     key.target.position.set(0, 0, 0);
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
@@ -236,9 +285,9 @@ window.setup = async (options) => {
     scene.add(key, key.target);
     // the inspection light: a long bar that sweeps across the car
     inspect = new THREE.RectAreaLight(0xeaf6ff, 0, 0.18, 4.6);
-    inspect.position.set(-3.2, 2.1, 0);
+    inspect.position.set(3.2, 2.1, 0);
     inspect.up.set(0, 0, 1);
-    inspect.lookAt(-3.2, 0, 0);
+    inspect.lookAt(3.2, 0, 0);
     scene.add(inspect);
 
     // ── the car ──
@@ -275,6 +324,17 @@ window.setup = async (options) => {
     car.rotation.order = 'YXZ';
     car.add(model);
     scene.add(car);
+
+    // the lettering, projected onto the left door while the car stands at the origin, then
+    // carried along with it
+    car.updateMatrixWorld(true);
+    const body = model.getObjectByName('body');
+    const lettering = new THREE.Mesh(
+        new DecalGeometry(body, new THREE.Vector3(-1.1, 0.56, -0.08), new THREE.Euler(0, -Math.PI / 2, 0), new THREE.Vector3(1.95, 0.34, 0.9)),
+        letteringMaterial(await letteringTexture()),
+    );
+    lettering.renderOrder = 3;
+    car.add(lettering);
 
     // headlights: spots that light the road ahead, and glows that read from far away
     car.updateMatrixWorld(true);
@@ -321,11 +381,13 @@ window.setup = async (options) => {
         }
         return hi;
     };
-    const dPark = new THREE.Vector3(2.2, 0.75, 5.6).normalize();
+    // the camera swings from the right, past the nose, round to the car's left side
+    const dPark = new THREE.Vector3(1.6, 0.75, 5.6).normalize();
     const fd = fitDistance(dPark);
-    const pDrive = L.clone().addScaledVector(new THREE.Vector3(0.9, 0.42, 6.5).normalize(), fd * 1.18);
-    const pPark = L.clone().addScaledVector(dPark, fd);
-    const pEnd = L.clone().addScaledVector(new THREE.Vector3(3.0, 0.95, 5.0).normalize(), fd * 0.9);
+    const dEnd = new THREE.Vector3(-4.3, 0.95, 3.7).normalize();
+    const pDrive = L.clone().addScaledVector(new THREE.Vector3(2.2, 0.42, 6.5).normalize(), fd * 1.18);
+    const pPark = L.clone().addScaledVector(new THREE.Vector3(0.2, 0.85, 5.8).normalize(), fd * 0.98);
+    const pEnd = L.clone().addScaledVector(dEnd, fitDistance(dEnd) * (cfg.endPush ?? 0.8)); // the final push-in
     curve = new THREE.CatmullRomCurve3([pDrive, pPark, pEnd]);
     cfg.L = L;
     cfg.pDrive = pDrive;
@@ -369,11 +431,15 @@ window.renderAt = (t) => {
 
     // the inspection sweep
     const k = clamp01((t - T.sweepFrom) / (T.sweepTo - T.sweepFrom));
-    const sx = -3.2 + 6.4 * easeInOut(k);
+    const sx = 3.2 - 6.4 * easeInOut(k);
     inspect.position.x = sx;
     inspect.lookAt(sx, 0, 0);
     inspect.intensity = k > 0 && k < 1 ? 10 * Math.sin(Math.PI * k) : 0;
-    sweepUniform.value = k <= 0 ? -10 : k >= 1 ? 10 : sx;
+    sweepUniform.value = k <= 0 ? 10 : k >= 1 ? -10 : sx;
+
+    // MDETAILING written on the door, rear to front
+    const w = clamp01((t - T.writeFrom) / (T.writeTo - T.writeFrom));
+    writeUniform.value = w <= 0 ? -10 : w >= 1 ? 10 : -1.25 + 2.4 * easeInOut(w);
 
     // the camera: low and ahead while the car drives in, then round to the right and closer
     const look = new THREE.Vector3(car.position.x, cfg.L.y, car.position.z);

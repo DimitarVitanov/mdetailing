@@ -1,7 +1,7 @@
 // Renders the home page's drive-in video from the 3D model (scene.js) with the Mac's GPU.
 //
 //   node tools/car-render/render.mjs                 both variants → public/video/
-//   node tools/car-render/render.mjs --preview 0,3.8,6.4   just those moments, as PNGs in /tmp
+//   node tools/car-render/render.mjs --preview 0,2.4,5.3   just those moments, as PNGs in /tmp
 //   … --only wide                                    one variant
 //   … --tmp <dir>                                    where frames go (default: the system temp dir)
 //
@@ -20,19 +20,21 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
 const out = path.join(root, 'public/video');
 const FPS = 30;
-const END = 6.4;
+const END = 5.3;
 
 // wide: desktop stage (≈ 2.96:1); tall: phone stage (≈ 1.18:1). fill = share of the frame the
-// parked car may take (half-widths in NDC), before the final push-in.
+// parked car may take (half-widths in NDC); endPush = how far in the final shot comes from there.
 const VARIANTS = {
-    wide: { width: 1920, height: 648, fov: 22, fill: [0.5, 0.56] },
-    tall: { width: 944, height: 800, fov: 38, fill: [0.74, 0.5] },
+    wide: { width: 1920, height: 648, fov: 22, fill: [0.5, 0.56], endPush: 0.8 },
+    tall: { width: 944, height: 800, fov: 38, fill: [0.74, 0.5], endPush: 0.9 },
 };
 
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.glb': 'model/gltf-binary', '.png': 'image/png', '.wasm': 'application/wasm', '.json': 'application/json' };
+const types = { '.woff2': 'font/woff2', '.html': 'text/html', '.js': 'text/javascript', '.glb': 'model/gltf-binary', '.png': 'image/png', '.wasm': 'application/wasm', '.json': 'application/json' };
 const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
-    const file = url.startsWith('/three/') ? path.join(root, 'node_modules', url) : url.startsWith('/tool/') ? path.join(here, url.slice(6)) : null;
+    const file = url.startsWith('/three/') ? path.join(root, 'node_modules', url)
+        : url.startsWith('/tool/') ? path.join(here, url.slice(6))
+        : url.startsWith('/fonts/') ? path.join(root, 'public', url) : null;
     if (!file || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
     res.writeHead(200, { 'content-type': types[path.extname(file)] || 'application/octet-stream' });
     fs.createReadStream(file).pipe(res);

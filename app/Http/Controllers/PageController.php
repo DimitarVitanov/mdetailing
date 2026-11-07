@@ -27,9 +27,9 @@ class PageController extends Controller
             'testimonials' => Testimonial::active()->featured()->latest()->limit(6)->get(self::TESTIMONIAL_CARD),
             'seo' => Seo::forPage('home'),
         ])->withViewData(['preloadPosters' => [
-            // the first frames of the drive-in video (HeroDrive.vue): one per stage shape
-            ['href' => '/video/drive-tall-first.webp', 'media' => '(max-width: 1023px)'],
-            ['href' => '/video/drive-wide-first.webp', 'media' => '(min-width: 1024px)'],
+            // the first frames of the drive-in video (HeroDrive.vue, same ?v): one per stage shape
+            ['href' => '/video/drive-tall-first.webp?v=2', 'media' => '(max-width: 1023px)'],
+            ['href' => '/video/drive-wide-first.webp?v=2', 'media' => '(min-width: 1024px)'],
         ]]);
     }
 
